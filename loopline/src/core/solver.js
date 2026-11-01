@@ -1,4 +1,4 @@
-import { isFree, tap } from './game.js'
+import { tap, tappable } from './game.js'
 
 const keyOf = s =>
   [
@@ -17,8 +17,7 @@ export const solve = (start, budget = 20000) => {
     const key = keyOf(state)
     if (seen.has(key)) return null
     seen.add(key)
-    const options = state.tiles
-      .filter(t => isFree(state.size, state.tiles, t))
+    const options = tappable(state)
       .map(t => ({ t, next: tap(state, t.x, t.y) }))
       .sort((a, b) => a.next.belt.length - b.next.belt.length)
     for (const { t, next } of options) {
@@ -28,4 +27,19 @@ export const solve = (start, budget = 20000) => {
     return null
   }
   return search({ ...start, history: [] })
+}
+
+export const analyze = start => {
+  for (let optimum = 0; optimum <= start.capacity; optimum++) {
+    const solution = solve({ ...start, capacity: optimum })
+    if (!solution) continue
+    let state = start
+    let choices = 0
+    for (const [x, y] of solution) {
+      choices += tappable(state).length
+      state = tap(state, x, y)
+    }
+    return { optimum, solution, branching: choices / solution.length }
+  }
+  return null
 }

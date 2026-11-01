@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### L06 Difficulty curve and tutorial
-
-Parameter table for levels 1–∞ (size, colors, capacity, bins, locked tiles from level 15), first three levels hand-tuned as tutorial with one-line hints. Done when the solver reports the optimum and branching for levels 1–50 rise smoothly (test on a table of expectations).
-
 ### L07 Juice
 
 Haptics (`navigator.vibrate`, guarded), WebAudio synthesized sounds (tap, slide, bin clear, win, lose) with a mute toggle, clear particles, screen shake on loss. Done when every event has feedback and mute persists.
@@ -37,6 +33,9 @@ Manifest, SVG icon, service worker caching the app shell, offline play. Done whe
 - Bins pull matching tiles from the loop at once (the loop is a holding ring), instead of only when a tile passes the bin as `docs/concept.md` describes. Default built: instant pull, because it keeps the puzzle deterministic and readable; positional pull is a candidate hard mode
 - Hosting: the MVP runs locally (`npm run serve`) and as a private claude.ai artifact; GitHub Pages needs a repository setting only the author can change
 
+- Locked tiles open after a count of moves (badge on the tile) rather than by a neighbour or key; generator caps each lock at the tile's position in its proven order so solvability holds
+- The solver's optimum (lowest loop peak) is 0 on most generated levels, so three stars are easy; a tighter bin order is a candidate difficulty knob
+
 ## Done
 
 - L01 Project skeleton (2026-10-31, built in the conversation)
@@ -44,6 +43,7 @@ Manifest, SVG icon, service worker caching the app shell, offline play. Done whe
 - L03 Solver and generator (2026-10-31, built in the conversation)
 - L04 Renderer and input (2026-10-31, built in the conversation)
 - L05 Game flow (2026-10-31, built in the conversation)
+- L06 Difficulty curve and tutorial (2026-10-31)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green; a run that breaks e2e reverts its own change.
 

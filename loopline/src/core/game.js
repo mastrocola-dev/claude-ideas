@@ -10,10 +10,16 @@ export const isFree = (size, tiles, tile) => {
   return true
 }
 
-const statusOf = ({ size, tiles, belt, capacity }) => {
-  if (!tiles.length && !belt.length) return 'won'
-  if (belt.length > capacity) return 'lost'
-  if (!tiles.some(t => isFree(size, tiles, t))) return 'lost'
+export const lockLeft = (state, tile) => Math.max(0, (tile.lock ?? 0) - state.moves)
+
+export const isOpen = (state, tile) => !lockLeft(state, tile) && isFree(state.size, state.tiles, tile)
+
+export const tappable = state => state.tiles.filter(t => isOpen(state, t))
+
+const statusOf = state => {
+  if (!state.tiles.length && !state.belt.length) return 'won'
+  if (state.belt.length > state.capacity) return 'lost'
+  if (!tappable(state).length) return 'lost'
   return 'playing'
 }
 
@@ -55,7 +61,7 @@ export const createGame = ({ size, tiles, queue, bins, capacity }) =>
 
 export const canTap = (state, x, y) => {
   const tile = tileAt(state.tiles, x, y)
-  return state.status === 'playing' && Boolean(tile) && isFree(state.size, state.tiles, tile)
+  return state.status === 'playing' && Boolean(tile) && isOpen(state, tile)
 }
 
 export const tap = (state, x, y) => {

@@ -1,4 +1,4 @@
-import { dirs, isFree } from '../core/game.js'
+import { dirs, isOpen, lockLeft } from '../core/game.js'
 
 const slideTime = 220
 const shakeTime = 260
@@ -82,6 +82,21 @@ export const createBoard = canvas => {
     ctx.globalAlpha = 1
   }
 
+  const drawLock = (cx, cy, size, count) => {
+    const r = size * 0.2
+    const bx = cx + size * 0.3
+    const by = cy - size * 0.3
+    ctx.fillStyle = '#14112b'
+    ctx.beginPath()
+    ctx.arc(bx, by, r, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#fff'
+    ctx.font = `700 ${r * 1.3}px system-ui, sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(String(count), bx, by + r * 0.05)
+  }
+
   const drawTrack = (state, time) => {
     const danger = state.belt.length >= state.capacity - 1
     ctx.strokeStyle = danger ? '#5c2346' : '#2c2560'
@@ -121,8 +136,9 @@ export const createBoard = canvas => {
       const wobble = shake
         ? Math.sin((time - shake.at) / 25) * box.cell * 0.06 * (1 - (time - shake.at) / shakeTime)
         : 0
-      const free = isFree(state.size, state.tiles, tile)
-      drawTile(cx + wobble, cy, tileSize, tile.color, tile.dir, free ? 1 : 0.72)
+      drawTile(cx + wobble, cy, tileSize, tile.color, tile.dir, isOpen(state, tile) ? 1 : 0.72)
+      const left = lockLeft(state, tile)
+      if (left) drawLock(cx + wobble, cy, tileSize, left)
     }
     for (const effect of effects.filter(e => e.kind === 'slide')) {
       const t = ease(Math.min(1, (time - effect.at) / slideTime))
