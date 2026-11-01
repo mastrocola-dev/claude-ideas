@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### L12 Showcase
-
-`README.md` with pitch, how to play, how to run, screenshot of a level and of the win overlay in `docs/screenshots/`, link to `docs/concept.md`. Done when the README renders on GitHub with the images.
-
 ## Needs author
 
 - Bins pull matching tiles from the loop at once (the loop is a holding ring), instead of only when a tile passes the bin as `docs/concept.md` describes. Default built: instant pull, because it keeps the puzzle deterministic and readable; positional pull is a candidate hard mode
@@ -31,6 +27,7 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 - L09 Daily Loop (2026-10-31)
 - L10 PWA (2026-10-31)
 - L11 Accessibility check (2026-10-31)
+- L12 Showcase (2026-10-31)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green; a run that breaks e2e reverts its own change.
 

@@ -14,6 +14,7 @@ Rewritten by each run; keep it short.
 - `begin` draws the board at once: the e2e taps right after a level starts and the cell size changes with board size
 - PWA: classic `sw.js` (network first, cache fallback, `shell` list); `test/pwa.test.js` fails when a new `src/` file is missing from `shell`, bump `cache` name on shell changes
 - e2e runs axe-core (pinned dev dependency) on title, game and result; icon buttons need an aria-label that contains their visible count
+- Backlog L06–L12 done on 2026-10-31; `README.md` uses the e2e screenshots in `docs/screenshots/`, rerun `npm run e2e` to refresh them
 - Cloud runs: Node 22 works; Chromium at `/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` (override with `CHROMIUM`); `playwright-core` only, no browser download
 - Biome also formats Markdown; run `npm run fix` before committing
 - Fetch `poc` with `git fetch origin +refs/heads/poc:refs/remotes/origin/poc` before `git checkout -B poc origin/poc`
