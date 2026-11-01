@@ -1,6 +1,6 @@
 # Backlog — Loopline
 
-The build agent takes the first item under **Next**, one per run.
+The build agent takes items from the top of **Next**, one commit each. Scheduled task `Loopline build agent` (`trig_01XrJeVriWSmRyxgE9ooXJuS`), runs at 22:32, 23:32, 00:32 and 01:32 (America/Sao_Paulo), disables itself after 01:30.
 
 ## Next
 
