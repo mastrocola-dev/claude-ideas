@@ -9,6 +9,7 @@ const $ = id => document.getElementById(id)
 const canvas = $('board')
 const board = createBoard(canvas)
 const boosterIcons = { undo: '↶', widen: '＋', reverse: '⇄' }
+const boosterNames = { undo: 'Undo', widen: 'Extra loop slot', reverse: 'Reverse bin order' }
 const boosterRules = { undo, widen, reverse }
 
 let progress = loadProgress()
@@ -60,6 +61,7 @@ const renderHud = () => {
   for (const kind of boosterKinds) {
     const count = progress.boosters[kind]
     $(kind).textContent = `${boosterIcons[kind]} ${count}`
+    $(kind).ariaLabel = `${boosterNames[kind]} ${count}`
     $(kind).disabled = !count || state.status !== 'playing' || (kind === 'undo' && !state.history.length)
   }
   $('hint').textContent = level.hint ?? `Loop holds ${state.capacity}. Don't let it overflow.`

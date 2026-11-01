@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { mkdirSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { chromium } from 'playwright-core'
 
 const port = 5179
@@ -13,9 +14,17 @@ mkdirSync(shots, { recursive: true })
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM ?? '/opt/pw-browsers/chromium-1243/chrome-linux64/chrome',
 })
+const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js')
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true })
 const errors = []
 page.on('pageerror', error => errors.push(error.message))
+
+const audit = async screen => {
+  await page.addScriptTag({ path: axePath })
+  const { violations } = await page.evaluate(() => window.axe.run())
+  const serious = violations.filter(v => ['serious', 'critical'].includes(v.impact)).map(v => `${screen}: ${v.id}`)
+  assert.deepEqual(serious, [])
+}
 
 const playLevel = async (number, shot) => {
   const level = await page.evaluate(() => window.loopline.level())
@@ -34,8 +43,11 @@ try {
   await page.goto(url)
   await page.evaluate(() => navigator.serviceWorker.ready)
   await page.screenshot({ path: `${shots}title.png` })
+  await audit('title')
   await page.click('#play')
+  await audit('game')
   await playLevel(1, false)
+  await audit('result')
   await page.click('#result-next')
   await playLevel(2, false)
   await page.click('#result-next')
@@ -70,7 +82,7 @@ try {
   assert.equal(await page.locator('#game').isVisible(), true)
   assert.deepEqual(errors, [])
   console.log(
-    'e2e passed: levels 1-4 won by touch, progress and mute kept after reload, daily shared, offline reload works',
+    'e2e passed: levels 1-4 won by touch, progress and mute kept after reload, daily shared, offline reload works, no serious axe violations',
   )
 } finally {
   await browser.close()
