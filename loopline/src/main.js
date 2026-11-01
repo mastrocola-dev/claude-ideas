@@ -195,6 +195,7 @@ const frame = time => {
   requestAnimationFrame(frame)
 }
 
+navigator.serviceWorker?.register('sw.js')
 renderSound()
 showTitle()
 requestAnimationFrame(frame)

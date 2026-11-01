@@ -1,0 +1,12 @@
+{
+  "name": "Loopline",
+  "short_name": "Loopline",
+  "description": "Free the arrows. Feed the loop.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14112b",
+  "theme_color": "#14112b",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

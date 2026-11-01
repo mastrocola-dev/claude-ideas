@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### L10 PWA
-
-Manifest, SVG icon, service worker caching the app shell, offline play. Done when the page loads offline after the first visit (Playwright check).
-
 ### L11 Accessibility check
 
 `npm run e2e` already plays levels 1–4 through real taps on 390×844 and checks progress after reload. Add axe (`axe-core` injected into the page) on the title, game and result screens. Done when no serious or critical violations remain.
@@ -37,6 +33,7 @@ Manifest, SVG icon, service worker caching the app shell, offline play. Done whe
 - L07 Juice (2026-10-31)
 - L08 Boosters (2026-10-31)
 - L09 Daily Loop (2026-10-31)
+- L10 PWA (2026-10-31)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green; a run that breaks e2e reverts its own change.
 

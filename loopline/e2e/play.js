@@ -32,6 +32,7 @@ const playLevel = async (number, shot) => {
 
 try {
   await page.goto(url)
+  await page.evaluate(() => navigator.serviceWorker.ready)
   await page.screenshot({ path: `${shots}title.png` })
   await page.click('#play')
   await playLevel(1, false)
@@ -63,8 +64,14 @@ try {
   assert.match(await page.evaluate(() => window.shared), /^Loopline Daily \d{4}-\d{2}-\d{2}\n/)
   await page.click('#result-next')
   assert.equal(await page.textContent('#daily'), 'Daily Loop 🔥1')
+  await page.context().setOffline(true)
+  await page.reload()
+  await page.click('#play')
+  assert.equal(await page.locator('#game').isVisible(), true)
   assert.deepEqual(errors, [])
-  console.log('e2e passed: levels 1-4 won by touch, progress and mute kept after reload, daily shared')
+  console.log(
+    'e2e passed: levels 1-4 won by touch, progress and mute kept after reload, daily shared, offline reload works',
+  )
 } finally {
   await browser.close()
   server.kill()
