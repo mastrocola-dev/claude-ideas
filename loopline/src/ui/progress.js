@@ -1,7 +1,13 @@
 const key = 'loopline.progress'
 export const boosterKinds = ['undo', 'widen', 'reverse']
 
-const empty = { unlocked: 1, stars: {}, muted: false, boosters: { undo: 3, widen: 1, reverse: 1 } }
+const empty = {
+  unlocked: 1,
+  stars: {},
+  muted: false,
+  boosters: { undo: 3, widen: 1, reverse: 1 },
+  daily: { streak: 0 },
+}
 
 const totalStars = stars => Object.values(stars).reduce((sum, n) => sum + n, 0)
 

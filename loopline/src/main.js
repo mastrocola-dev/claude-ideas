@@ -1,3 +1,4 @@
+import { dailyLevel, dayKey, recordDaily, shareText } from './core/daily.js'
 import { canTap, createGame, reverse, stars, tap, undo, widen } from './core/game.js'
 import { levelFor } from './core/levels.js'
 import { createBoard } from './ui/board.js'
@@ -55,7 +56,7 @@ const quake = () => {
 }
 
 const renderHud = () => {
-  $('level-label').textContent = `Level ${level.number}`
+  $('level-label').textContent = level.day ? 'Daily Loop' : `Level ${level.number}`
   for (const kind of boosterKinds) {
     const count = progress.boosters[kind]
     $(kind).textContent = `${boosterIcons[kind]} ${count}`
@@ -64,26 +65,38 @@ const renderHud = () => {
   $('hint').textContent = level.hint ?? `Loop holds ${state.capacity}. Don't let it overflow.`
 }
 
-const start = number => {
-  level = levelFor(number)
+const begin = built => {
+  level = built
   state = createGame(level)
   effects = []
   renderBins()
   renderHud()
   show('game')
+  board.draw(state, effects, performance.now())
 }
+
+const start = number => begin(levelFor(number))
 
 const finish = () => {
   const won = state.status === 'won'
   const earned = won ? stars(state) : 0
-  if (won) progress = recordWin(progress, level.number, earned)
+  if (level.day) {
+    const result = { won, moves: state.moves, stars: earned }
+    progress = saveProgress({ ...progress, daily: recordDaily(progress.daily, level.day, result) })
+  } else if (won) progress = recordWin(progress, level.number, earned)
   feedback[won ? 'win' : 'lose']()
   if (!won) quake()
   setTimeout(() => {
     $('result-title').textContent = won ? 'Loop cleared!' : 'Loop overflowed'
     $('result-stars').textContent = won ? '★'.repeat(earned) + '☆'.repeat(3 - earned) : ''
-    $('result-next').textContent = won ? 'Next level' : 'Try again'
-    $('result-next').onclick = () => start(won ? level.number + 1 : level.number)
+    $('result-next').textContent = won ? (level.day ? 'Done' : 'Next level') : 'Try again'
+    $('result-next').onclick = () => {
+      if (!won) begin(level)
+      else if (level.day) showTitle()
+      else start(level.number + 1)
+    }
+    $('result-share').hidden = !level.day
+    $('result-share').textContent = 'Share'
     show('result')
   }, 450)
 }
@@ -132,15 +145,34 @@ const renderSound = () => {
   $('sound').textContent = progress.muted ? 'Sound off' : 'Sound on'
 }
 
+const showTitle = () => {
+  const { streak } = progress.daily
+  $('daily').textContent = streak ? `Daily Loop 🔥${streak}` : 'Daily Loop'
+  show('title')
+}
+
+const share = async () => {
+  const text = shareText(level, progress.daily)
+  try {
+    if (navigator.share) await navigator.share({ text })
+    else {
+      await navigator.clipboard.writeText(text)
+      $('result-share').textContent = 'Copied'
+    }
+  } catch {}
+}
+
+$('result-share').onclick = share
+$('daily').onclick = () => begin(dailyLevel(dayKey(new Date())))
 $('play').onclick = () => start(progress.unlocked)
 $('choose').onclick = () => {
   renderLevels()
   show('levels')
 }
-$('back').onclick = () => show('title')
-$('home').onclick = () => show('title')
-$('result-menu').onclick = () => show('title')
-$('restart').onclick = () => start(level.number)
+$('back').onclick = showTitle
+$('home').onclick = showTitle
+$('result-menu').onclick = showTitle
+$('restart').onclick = () => begin(level)
 for (const kind of boosterKinds) {
   $(kind).onclick = () => {
     if (!progress.boosters[kind] || state.status !== 'playing') return
@@ -164,6 +196,7 @@ const frame = time => {
 }
 
 renderSound()
+showTitle()
 requestAnimationFrame(frame)
 
 window.loopline = {

@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### L09 Daily Loop
-
-Seed from the UTC date, one attempt record per day, streak, share text built from emoji (moves, stars, a small ring glyph) through `navigator.share` with clipboard fallback. Done when two runs on the same date produce the same level and share text format is tested.
-
 ### L10 PWA
 
 Manifest, SVG icon, service worker caching the app shell, offline play. Done when the page loads offline after the first visit (Playwright check).
@@ -28,6 +24,7 @@ Manifest, SVG icon, service worker caching the app shell, offline play. Done whe
 - Locked tiles open after a count of moves (badge on the tile) rather than by a neighbour or key; generator caps each lock at the tile's position in its proven order so solvability holds
 - The solver's optimum (lowest loop peak) is 0 on most generated levels, so three stars are easy; a tighter bin order is a candidate difficulty knob
 - Reverse belt has no effect while bins pull instantly, so the booster reverses the order of the colors still queued for the bins; an extra slot survives undo and does not lower the stars bar; each new star earns one booster in turn (undo, slot, reverse), start stock 3/1/1
+- Daily Loop uses level 20 parameters, records only the first attempt of each UTC day, keeps the streak only on consecutive wins, and can be replayed without being recorded again
 
 ## Done
 
@@ -39,6 +36,7 @@ Manifest, SVG icon, service worker caching the app shell, offline play. Done whe
 - L06 Difficulty curve and tutorial (2026-10-31)
 - L07 Juice (2026-10-31)
 - L08 Boosters (2026-10-31)
+- L09 Daily Loop (2026-10-31)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green; a run that breaks e2e reverts its own change.
 

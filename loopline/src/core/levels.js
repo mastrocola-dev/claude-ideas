@@ -132,11 +132,15 @@ export const generate = (params, seed) => {
   return null
 }
 
+export const levelFrom = (params, seed) => {
+  for (let offset = 0; ; offset++) {
+    const level = generate(params, seed + offset)
+    if (level) return level
+  }
+}
+
 export const levelFor = number => {
   const tutorial = tutorials[number]
   if (tutorial) return { ...tutorial, number, solution: solve(createGame(tutorial)) }
-  for (let offset = 0; ; offset++) {
-    const level = generate(paramsFor(number), number * 7919 + offset)
-    if (level) return { ...level, number, hint: hints[number] }
-  }
+  return { ...levelFrom(paramsFor(number), number * 7919), number, hint: hints[number] }
 }

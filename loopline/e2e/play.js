@@ -51,8 +51,20 @@ try {
   await page.click('#sound')
   await page.reload()
   assert.equal(await page.textContent('#sound'), 'Sound off')
+  await page.evaluate(() => {
+    navigator.share = ({ text }) => {
+      window.shared = text
+      return Promise.resolve()
+    }
+  })
+  await page.click('#daily')
+  await playLevel('daily', false)
+  await page.click('#result-share')
+  assert.match(await page.evaluate(() => window.shared), /^Loopline Daily \d{4}-\d{2}-\d{2}\n/)
+  await page.click('#result-next')
+  assert.equal(await page.textContent('#daily'), 'Daily Loop 🔥1')
   assert.deepEqual(errors, [])
-  console.log('e2e passed: levels 1-4 won by touch, progress and mute kept after reload')
+  console.log('e2e passed: levels 1-4 won by touch, progress and mute kept after reload, daily shared')
 } finally {
   await browser.close()
   server.kill()
