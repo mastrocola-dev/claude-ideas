@@ -1,18 +1,18 @@
-import { canTap, createGame, stars, tap, undo } from './core/game.js'
+import { canTap, createGame, reverse, stars, tap, undo, widen } from './core/game.js'
 import { levelFor } from './core/levels.js'
 import { createBoard } from './ui/board.js'
 import { feedback, setMuted } from './ui/feedback.js'
-import { loadProgress, recordWin, saveProgress } from './ui/progress.js'
+import { boosterKinds, loadProgress, recordWin, saveProgress, spendBooster } from './ui/progress.js'
 
 const $ = id => document.getElementById(id)
 const canvas = $('board')
 const board = createBoard(canvas)
-const undoLimit = 3
+const boosterIcons = { undo: '↶', widen: '＋', reverse: '⇄' }
+const boosterRules = { undo, widen, reverse }
 
 let progress = loadProgress()
 let level
 let state
-let undosLeft
 let effects = []
 
 const show = screen => {
@@ -56,15 +56,17 @@ const quake = () => {
 
 const renderHud = () => {
   $('level-label').textContent = `Level ${level.number}`
-  $('undo').disabled = !undosLeft || !state.history.length || state.status !== 'playing'
-  $('undo').textContent = `↶${undosLeft}`
+  for (const kind of boosterKinds) {
+    const count = progress.boosters[kind]
+    $(kind).textContent = `${boosterIcons[kind]} ${count}`
+    $(kind).disabled = !count || state.status !== 'playing' || (kind === 'undo' && !state.history.length)
+  }
   $('hint').textContent = level.hint ?? `Loop holds ${state.capacity}. Don't let it overflow.`
 }
 
 const start = number => {
   level = levelFor(number)
   state = createGame(level)
-  undosLeft = undoLimit
   effects = []
   renderBins()
   renderHud()
@@ -139,12 +141,14 @@ $('back').onclick = () => show('title')
 $('home').onclick = () => show('title')
 $('result-menu').onclick = () => show('title')
 $('restart').onclick = () => start(level.number)
-$('undo').onclick = () => {
-  if (!undosLeft || !state.history.length) return
-  undosLeft -= 1
-  state = undo(state)
-  renderBins()
-  renderHud()
+for (const kind of boosterKinds) {
+  $(kind).onclick = () => {
+    if (!progress.boosters[kind] || state.status !== 'playing') return
+    progress = spendBooster(progress, kind)
+    state = boosterRules[kind](state)
+    renderBins()
+    renderHud()
+  }
 }
 $('sound').onclick = () => {
   progress = saveProgress({ ...progress, muted: !progress.muted })

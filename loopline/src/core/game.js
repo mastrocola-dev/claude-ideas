@@ -56,6 +56,7 @@ export const createGame = ({ size, tiles, queue, bins, capacity }) =>
     belt: [],
     moves: 0,
     peak: 0,
+    widened: 0,
     history: [],
   })
 
@@ -81,7 +82,16 @@ export const tap = (state, x, y) => {
 export const undo = state => {
   const previous = state.history.at(-1)
   if (!previous) return state
-  return settle({ ...previous, history: state.history.slice(0, -1), last: null })
+  const { capacity, widened } = state
+  return settle({ ...previous, capacity, widened, history: state.history.slice(0, -1), last: null })
 }
 
-export const stars = state => (state.peak <= state.capacity - 2 ? 3 : state.peak <= state.capacity - 1 ? 2 : 1)
+export const widen = state =>
+  state.status === 'playing' ? { ...state, capacity: state.capacity + 1, widened: state.widened + 1 } : state
+
+export const reverse = state => (state.status === 'playing' ? { ...state, queue: [...state.queue].reverse() } : state)
+
+export const stars = state => {
+  const base = state.capacity - state.widened
+  return state.peak <= base - 2 ? 3 : state.peak <= base - 1 ? 2 : 1
+}

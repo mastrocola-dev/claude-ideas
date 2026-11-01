@@ -9,6 +9,7 @@ Rewritten by each run; keep it short.
 - Generator places tiles so the reverse placement order is always arrow-solvable; the solver then checks the bin queue; levels are deterministic by number
 - `window.loopline` exposes `level`, `status` and `pointFor` for `e2e/play.js`; keep it working
 - Feedback events `tap`, `slide`, `blocked`, `clear`, `win`, `lose` in `src/ui/feedback.js`, guarded for Node; sparks and quake are CSS in `main.js`, off under reduced motion
+- Boosters: rules `undo`, `widen`, `reverse` in `game.js`; stock in `progress.boosters` (`recordWin`, `spendBooster`); buttons below the board share ids with the kinds
 - Cloud runs: Node 22 works; Chromium at `/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` (override with `CHROMIUM`); `playwright-core` only, no browser download
 - Biome also formats Markdown; run `npm run fix` before committing
 - Fetch `poc` with `git fetch origin +refs/heads/poc:refs/remotes/origin/poc` before `git checkout -B poc origin/poc`

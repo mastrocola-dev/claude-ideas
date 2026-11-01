@@ -42,7 +42,7 @@ button {
 
 .hud {
   display: grid;
-  grid-template-columns: 44px 1fr 44px 44px;
+  grid-template-columns: 44px 1fr 44px;
   gap: 8px;
   align-items: center;
   width: 100%;
@@ -63,6 +63,21 @@ button {
   font-size: 20px;
 }
 
+.boosters {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.boosters button {
+  min-width: 72px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--panel);
+  font-size: 18px;
+}
+
+.boosters button:disabled,
 .hud button:disabled {
   opacity: 0.35;
 }
