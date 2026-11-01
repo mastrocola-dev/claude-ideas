@@ -47,8 +47,12 @@ try {
   assert.equal(await page.locator('#level-grid button:not([disabled])').count(), 5)
   await page.click('#level-grid button >> nth=4')
   assert.equal(await page.textContent('#level-label'), 'Level 5')
+  await page.click('#home')
+  await page.click('#sound')
+  await page.reload()
+  assert.equal(await page.textContent('#sound'), 'Sound off')
   assert.deepEqual(errors, [])
-  console.log('e2e passed: levels 1-4 won by touch, progress kept after reload')
+  console.log('e2e passed: levels 1-4 won by touch, progress and mute kept after reload')
 } finally {
   await browser.close()
   server.kill()

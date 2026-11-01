@@ -224,3 +224,46 @@ h2 {
 #game[hidden] {
   display: none;
 }
+
+.spark {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  border-radius: 50%;
+  background: var(--c);
+  pointer-events: none;
+  animation: spark 0.6s ease-out forwards;
+}
+
+@keyframes spark {
+  from {
+    transform: rotate(var(--a)) translateX(0);
+  }
+  to {
+    transform: rotate(var(--a)) translateX(56px) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.quake {
+  animation: quake 0.4s ease-in-out;
+}
+
+@keyframes quake {
+  20%,
+  60% {
+    transform: translateX(-8px);
+  }
+  40%,
+  80% {
+    transform: translateX(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark,
+  .quake {
+    animation: none;
+  }
+}

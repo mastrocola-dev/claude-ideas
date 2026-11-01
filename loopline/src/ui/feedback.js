@@ -1,14 +1,15 @@
 let audio
 let muted = false
 
-const tone = (frequency, duration, type = 'sine', delay = 0) => {
-  if (muted) return
+const tone = (frequency, duration, type = 'sine', delay = 0, to = frequency) => {
+  if (muted || !globalThis.AudioContext) return
   audio ??= new AudioContext()
   const start = audio.currentTime + delay
   const osc = audio.createOscillator()
   const gain = audio.createGain()
   osc.type = type
   osc.frequency.setValueAtTime(frequency, start)
+  osc.frequency.exponentialRampToValueAtTime(to, start + duration)
   gain.gain.setValueAtTime(0.18, start)
   gain.gain.exponentialRampToValueAtTime(0.001, start + duration)
   osc.connect(gain).connect(audio.destination)
@@ -16,17 +17,20 @@ const tone = (frequency, duration, type = 'sine', delay = 0) => {
   osc.stop(start + duration)
 }
 
-const buzz = pattern => navigator.vibrate?.(pattern)
+const buzz = pattern => {
+  if (!muted) globalThis.navigator?.vibrate?.(pattern)
+}
 
 export const setMuted = value => {
   muted = value
 }
 
 export const feedback = {
-  slide: () => {
-    tone(520, 0.08, 'triangle')
-    buzz(8)
+  tap: () => {
+    tone(1200, 0.03, 'square')
+    buzz(6)
   },
+  slide: () => tone(420, 0.12, 'triangle', 0, 780),
   blocked: () => {
     tone(140, 0.12, 'square')
     buzz([20, 30, 20])

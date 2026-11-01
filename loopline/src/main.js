@@ -38,6 +38,22 @@ const renderBins = (previous = state.bins) => {
   )
 }
 
+const burst = (el, color) => {
+  const { left, top, width, height } = el.getBoundingClientRect()
+  for (let i = 0; i < 10; i++) {
+    const spark = document.createElement('i')
+    spark.className = 'spark'
+    spark.style.cssText = `left:${left + width / 2}px;top:${top + height / 2}px;--a:${i * 36}deg;--c:${color}`
+    document.body.append(spark)
+    setTimeout(() => spark.remove(), 600)
+  }
+}
+
+const quake = () => {
+  $('game').classList.add('quake')
+  setTimeout(() => $('game').classList.remove('quake'), 400)
+}
+
 const renderHud = () => {
   $('level-label').textContent = `Level ${level.number}`
   $('undo').disabled = !undosLeft || !state.history.length || state.status !== 'playing'
@@ -60,6 +76,7 @@ const finish = () => {
   const earned = won ? stars(state) : 0
   if (won) progress = recordWin(progress, level.number, earned)
   feedback[won ? 'win' : 'lose']()
+  if (!won) quake()
   setTimeout(() => {
     $('result-title').textContent = won ? 'Loop cleared!' : 'Loop overflowed'
     $('result-stars').textContent = won ? '★'.repeat(earned) + '☆'.repeat(3 - earned) : ''
@@ -78,10 +95,13 @@ const play = (x, y) => {
   const before = state.bins
   const next = tap(state, x, y)
   effects.push({ kind: 'slide', tile: next.last, at: performance.now() })
-  feedback.slide()
+  feedback.tap()
+  setTimeout(feedback.slide, 60)
   if (next.cleared.length) setTimeout(feedback.clear, 120)
   state = next
   renderBins(before)
+  for (const [i, bin] of before.entries())
+    if (bin.color && bin.color !== state.bins[i].color) burst($('bins').children[i], bin.color)
   renderHud()
   if (state.status !== 'playing') finish()
 }

@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### L07 Juice
-
-Haptics (`navigator.vibrate`, guarded), WebAudio synthesized sounds (tap, slide, bin clear, win, lose) with a mute toggle, clear particles, screen shake on loss. Done when every event has feedback and mute persists.
-
 ### L08 Boosters
 
 Undo, extra belt slot, reverse belt direction; earned by stars, counts persisted. Done when each booster has a rule test and a button.
@@ -44,6 +40,7 @@ Manifest, SVG icon, service worker caching the app shell, offline play. Done whe
 - L04 Renderer and input (2026-10-31, built in the conversation)
 - L05 Game flow (2026-10-31, built in the conversation)
 - L06 Difficulty curve and tutorial (2026-10-31)
+- L07 Juice (2026-10-31)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green; a run that breaks e2e reverts its own change.
 
