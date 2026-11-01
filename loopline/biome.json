@@ -1,0 +1,5 @@
+{
+  "formatter": { "indentStyle": "space", "lineWidth": 120 },
+  "javascript": { "formatter": { "semicolons": "asNeeded", "quoteStyle": "single", "arrowParentheses": "asNeeded" } },
+  "files": { "includes": ["**", "!node_modules", "!docs/screenshots"] }
+}

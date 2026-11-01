@@ -5,7 +5,7 @@ Read `docs/concept.md`, `BACKLOG.md` and `MEMORY.md` before anything else.
 ## Run protocol
 
 1. Take the first item under **Next** in `BACKLOG.md`; repeat steps 2–5 per item while the run has time (no new item 45 minutes after the run began)
-2. Implement it until its done criteria hold; tests green (`npm test`), check green (`npm run check`)
+2. Implement it until its done criteria hold; `npm test`, `npm run check` and `npm run e2e` green — the game must stay playable after every commit
 3. Self-review the diff: minimal, readable, no dead code
 4. Move the item to **Done** with the commit date; record lessons in `MEMORY.md` (rewrite, keep it short)
 5. One commit per item, author `Claude <noreply@anthropic.com>`, pushed to `poc`; never `main`, never force-push
