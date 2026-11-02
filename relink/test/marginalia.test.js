@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createCombat, endTurn, readGlyph, strokesPerTurn } from '../src/core/combat.js'
-import { marginalia } from '../src/core/data.js'
+import { enemies, marginalia } from '../src/core/data.js'
 import { act, createRun } from '../src/core/run.js'
 
 const rune = (ink, value = 1) => ({ id: `${ink}${value}`, ink, value })
@@ -90,21 +90,21 @@ test('rewards roll mostly common marginalia and never one you hold', () => {
 })
 
 test('Battery Bank shield covers this attack and the next, then expires', () => {
-  const combat = { ...fight(['batteryBank']), ward: 30 }
-  const first = endTurn(combat)
-  assert.deepEqual([first.hp, first.ward, first.carried], [50, 18, 18])
-  const withFresh = { ...first, ward: first.ward + 5 }
-  const second = endTurn(withFresh)
-  assert.deepEqual([second.hp, second.ward, second.carried], [50, 5, 5])
-  const third = endTurn(second)
-  assert.equal(third.hp, 50 - 23 + 5)
-  assert.equal(endTurn({ ...fight([]), ward: 30 }).ward, 0)
+  const [first, second, third] = enemies.hound.intents.map(([, value]) => value)
+  const start = { ...fight(['batteryBank']), ward: 40 }
+  const afterFirst = endTurn(start)
+  assert.deepEqual([afterFirst.hp, afterFirst.ward, afterFirst.carried], [50, 40 - first, 40 - first])
+  const afterSecond = endTurn({ ...afterFirst, ward: afterFirst.ward + 5 })
+  assert.deepEqual([afterSecond.hp, afterSecond.ward, afterSecond.carried], [50, 5, 5])
+  assert.equal(endTurn(afterSecond).hp, 50 - (third - 5))
+  assert.equal(endTurn({ ...fight([]), ward: 40 }).ward, 0)
+  assert.ok(second <= 40 - first)
 })
 
 test('an attack reports what the shield blocked and what got through', () => {
   const struck = endTurn({ ...fight([]), ward: 5 })
   assert.deepEqual(
     struck.events.find(e => e.kind === 'attack'),
-    { kind: 'attack', value: 12, blocked: 5, lost: 7 },
+    { kind: 'attack', value: enemies.hound.intents[0][1], blocked: 5, lost: enemies.hound.intents[0][1] - 5 },
   )
 })

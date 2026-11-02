@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createCombat, endTurn, hasStroke, height, isValid, readGlyph, width, write } from '../src/core/combat.js'
+import { enemies } from '../src/core/data.js'
 
 const rune = (ink, value = 1, id = `${ink}${value}${Math.random()}`) => ({ id, ink, value })
 const bag = Array.from({ length: 30 }, (_, i) => rune(['plasma', 'thermal', 'shield'][i % 3], 1, `r${i}`))
@@ -94,7 +95,7 @@ test('the enemy acts on end turn once the strokes are spent', () => {
   assert.equal(combat.turn, 2)
   assert.equal(combat.strokes, 2)
   assert.ok(combat.hp < 50)
-  assert.equal(endTurn(fight()).hp, 50 - 12)
+  assert.equal(endTurn(fight()).hp, 50 - enemies.hound.intents[0][1])
 })
 
 test('burn ticks at the start of the enemy turn', () => {

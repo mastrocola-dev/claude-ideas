@@ -25,7 +25,7 @@ test('the human-like policy is seeded and stops at depth 6', () => {
   assert.equal(humanPath({ ...combat, strokes: 0 }, rng(1)), null)
 })
 
-test('the exhaustive bot can finish all three acts', () => {
-  const tenSeeds = seeds.slice(0, 10)
-  assert.ok(tenSeeds.some(seed => playRun(seed, 'exhaustive').won))
+test('a player who takes modules and rests finishes 10 to 45% of runs', () => {
+  const { winRate } = summarize(seeds, 'player')
+  assert.ok(winRate >= 0.1 && winRate <= 0.45, `player win rate ${winRate}`)
 })
