@@ -79,3 +79,24 @@ test('a killing burn leaves the foe at zero', () => {
   assert.equal(combat.enemy.hp, 0)
   assert.equal(combat.events[0].kind, 'burn')
 })
+
+test('smudge lowers runes worth more than one', () => {
+  const combat = fight({ enemy: 'pewCrab' })
+  const cells = combat.cells.map((rune, i) => ({ ...rune, id: `c${i}`, value: i === 0 ? 3 : 1 }))
+  const enemy = { ...combat.enemy, step: 1 }
+  const next = endTurn({ ...combat, cells, enemy })
+  assert.deepEqual(next.events.at(-1), { kind: 'smudge', value: 2 })
+  assert.equal(next.cells.find(rune => rune?.id === 'c0').value, 2)
+})
+
+test('undertow shifts one column down and wraps its last rune', () => {
+  const combat = fight({ enemy: 'bellDiver' })
+  const cells = combat.cells.map((rune, i) => ({ ...rune, id: `c${i}` }))
+  const next = endTurn({ ...combat, cells })
+  const moved = next.cells.flatMap((rune, i) => (rune.id === `c${i}` ? [] : [i]))
+  assert.equal(moved.length, height)
+  const column = moved[0] % width
+  assert.ok(moved.every(i => i % width === column))
+  assert.equal(next.cells[column + width].id, `c${column}`)
+  assert.equal(next.cells[column].id, `c${column + width * (height - 1)}`)
+})

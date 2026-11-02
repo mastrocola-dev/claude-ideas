@@ -73,6 +73,8 @@ export const eventSounds = {
   },
   ward: () => tone({ from: 300, to: 420, duration: 0.2, volume: 0.1 }),
   rise: () => tone({ from: 110, to: 220, duration: 0.35, type: 'sawtooth', volume: 0.07 }),
+  smudge: () => noise({ duration: 0.25, band: 900, volume: 0.12 }),
+  undertow: () => tone({ from: 160, to: 60, duration: 0.5, volume: 0.2 }),
   burn: () => noise({ duration: 0.35, band: 5000, volume: 0.1 }),
   salt: () => {
     for (const delay of [0, 0.07, 0.15, 0.24]) noise({ duration: 0.04, band: 3500, volume: 0.14, delay })

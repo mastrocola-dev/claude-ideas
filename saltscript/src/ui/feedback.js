@@ -25,6 +25,8 @@ const reactions = {
   ward: ({ foe }, { value }) => float(foe, `+${value} ward`, 'ward'),
   rise: ({ foe }, { value }) => float(foe, `+${value} swell`, 'wound'),
   salt: ({ foe }, { value }) => float(foe, `${value} salted`, 'salt'),
+  smudge: ({ foe }, { value }) => float(foe, `${value} smudged`, 'salt'),
+  undertow: ({ foe }) => float(foe, 'undertow', 'salt'),
   burn: ({ foe }, { value }) => {
     float(foe, `−${value} burn`, 'burn')
     shake(foe)

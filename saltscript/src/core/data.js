@@ -72,13 +72,104 @@ export const enemies = {
       ['ward', 25],
     ],
   },
+  pewCrab: {
+    name: 'Pew Crab',
+    hp: 80,
+    intents: [
+      ['attack', 16],
+      ['smudge', 2],
+      ['attack', 20],
+    ],
+  },
+  bellDiver: {
+    name: 'Bell Diver',
+    hp: 90,
+    intents: [
+      ['undertow', 1],
+      ['attack', 22],
+      ['ward', 20],
+    ],
+  },
+  abbot: {
+    name: 'The Blotted Abbot',
+    hp: 150,
+    intents: [
+      ['smudge', 3],
+      ['attack', 26],
+      ['salt', 3],
+      ['attack', 30],
+    ],
+  },
+  organ: {
+    name: 'The Drowned Organ',
+    hp: 210,
+    intents: [
+      ['undertow', 1],
+      ['attack', 28],
+      ['smudge', 3],
+      ['rise', 5],
+      ['attack', 34],
+    ],
+  },
+  wickMoth: {
+    name: 'Wick Moth',
+    hp: 110,
+    intents: [
+      ['smudge', 3],
+      ['attack', 26],
+      ['attack', 26],
+    ],
+  },
+  lensShade: {
+    name: 'Lens Shade',
+    hp: 125,
+    intents: [
+      ['ward', 26],
+      ['undertow', 1],
+      ['attack', 34],
+    ],
+  },
+  warden: {
+    name: 'The Lens Warden',
+    hp: 200,
+    intents: [
+      ['rise', 5],
+      ['attack', 30],
+      ['salt', 4],
+      ['attack', 38],
+    ],
+  },
+  keeper: {
+    name: 'The Unlit Keeper',
+    hp: 300,
+    intents: [
+      ['salt', 5],
+      ['attack', 36],
+      ['undertow', 1],
+      ['smudge', 4],
+      ['attack', 46],
+      ['ward', 40],
+    ],
+  },
 }
 
-export const pools = {
-  fight: ['acolyte', 'hound', 'wraith', 'eel'],
-  elite: ['choirmother'],
-  boss: ['tide'],
-}
+export const acts = [
+  {
+    name: 'The Coast Road',
+    bossLabel: 'The Tide',
+    pools: { fight: ['acolyte', 'hound', 'wraith', 'eel'], elite: ['choirmother'], boss: ['tide'] },
+  },
+  {
+    name: 'The Sunken Nave',
+    bossLabel: 'The Organ',
+    pools: { fight: ['pewCrab', 'bellDiver'], elite: ['abbot'], boss: ['organ'] },
+  },
+  {
+    name: 'The Lighthouse',
+    bossLabel: 'The Keeper',
+    pools: { fight: ['wickMoth', 'lensShade'], elite: ['warden'], boss: ['keeper'] },
+  },
+]
 
 export const marginalia = {
   tidalGloss: {

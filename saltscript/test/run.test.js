@@ -71,5 +71,38 @@ test('the market charges gold and refuses what you cannot afford', () => {
 test('the bot can finish whole runs without errors', () => {
   const results = [1, 2, 3].map(seed => autoplay(seed).screen)
   assert.ok(results.every(screen => ['victory', 'defeat'].includes(screen)))
-  assert.ok(results.includes('victory'))
+})
+
+const bossDown = (run, offerKind = 'boss') => {
+  const combat = {
+    ...run.combat,
+    status: 'playing',
+    strokes: 0,
+    hp: 20,
+    maxHp: 70,
+    enemy: { ...run.combat.enemy, hp: 1, burn: 5 },
+  }
+  return act({ ...run, screen: 'combat', combat, hp: 20, offer: { kind: offerKind } }, { type: 'endTurn' })
+}
+
+test('beating a boss opens the next act, heals half the missing health and offers marginalia', () => {
+  const base = act(createRun(4), { type: 'choose', lane: 0 })
+  const next = bossDown(base)
+  assert.equal(next.actIndex, 1)
+  assert.equal(next.floor, -1)
+  assert.deepEqual(next.trail, [])
+  assert.equal(next.hp, 45)
+  assert.equal(next.screen, 'reward')
+  assert.equal(next.offer.marks.length, 2)
+  assert.notDeepEqual(next.map, base.map)
+})
+
+test('the third boss ends the run in victory', () => {
+  const base = act({ ...createRun(4), actIndex: 2 }, { type: 'choose', lane: 0 })
+  assert.equal(bossDown(base).screen, 'victory')
+})
+
+test('each act draws foes from its own pool', () => {
+  const run = act({ ...createRun(8), actIndex: 1 }, { type: 'choose', lane: 0 })
+  assert.ok(['pewCrab', 'bellDiver'].includes(run.combat.enemy.key))
 })

@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S06 Acts two and three
-
-After the Tide, the run continues to act two (The Sunken Nave) and act three (The Lighthouse), each with its own map, 2 new foes, 1 elite and a boss, and at least two new intents (for example `smudge`: lower two runes by one; `undertow`: shift a column down). Heal half the missing health between acts. Victory after the third boss. Done when the bot can finish all three acts on at least one of 10 seeds and tests cover the new intents.
-
 ### S07 More marginalia
 
 Eight more marginalia with rarities (common, uncommon, rare) that open new builds: burn-based, ward-to-wound conversion, salt synergies, short-stroke builds, bag-size builds. Rewards and market roll by rarity. Done when each has a rule test.
@@ -53,6 +49,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S03 Combat feel: floats, glyph flourish, 600 ms foe pause, salt cracks, reduced motion (2026-11-02)
 - S04 Sound and haptics: synthesized cues per event, persisted mute, guarded vibrate (2026-11-02)
 - S05 Balance harness: human-like policy, `npm run balance`, boss and elite tuned, bands pinned by test (2026-11-02)
+- S06 Acts two and three: Sunken Nave and Lighthouse, smudge and undertow, bosses offer marginalia, half heal between acts (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

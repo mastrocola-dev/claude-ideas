@@ -123,6 +123,20 @@ const hurt = (target, amount) => {
   return { ...target, ward: target.ward - absorbed, hp: target.hp - (amount - absorbed) }
 }
 
+const smudge = (cells, count, rand) => {
+  const targets = rand
+    .shuffle(cells.flatMap((rune, i) => (rune && rune.ink !== 'salt' && rune.value > 1 ? [i] : [])))
+    .slice(0, count)
+  return cells.map((rune, i) => (targets.includes(i) ? { ...rune, value: rune.value - 1 } : rune))
+}
+
+const undertow = (cells, column) =>
+  cells.map((rune, i) => {
+    if (i % width !== column) return rune
+    const row = Math.floor(i / width)
+    return cells[((row + height - 1) % height) * width + column]
+  })
+
 const enemyAct = state => {
   const burnDamage = state.enemy.burn * (has(state, 'lampOil') ? 2 : 1)
   let enemy = { ...state.enemy, ward: 0, hp: state.enemy.hp - burnDamage, burn: Math.max(0, state.enemy.burn - 1) }
@@ -153,6 +167,8 @@ const enemyAct = state => {
     }
     next = { ...next, cells: salted, discard }
   }
+  if (intent.kind === 'smudge') next = { ...next, cells: smudge(cells, intent.value, rand) }
+  if (intent.kind === 'undertow') next = { ...next, cells: undertow(cells, rand.int(width)) }
   enemy = { ...enemy, step: enemy.step + 1 }
   next = { ...next, enemy, seed: rand.state() }
   if (next.hp <= 0) return { ...next, hp: 0, status: 'lost' }

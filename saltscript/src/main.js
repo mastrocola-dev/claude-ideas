@@ -1,6 +1,6 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
-import { inks, marginalia, shrines } from './core/data.js'
+import { acts, inks, marginalia, shrines } from './core/data.js'
 import { act, createRun, markPrice, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
@@ -11,7 +11,7 @@ import { loadRun, saveRun } from './ui/store.js'
 const $ = id => document.getElementById(id)
 const screens = ['title', 'map', 'combat', 'reward', 'market', 'rest', 'shrine', 'end']
 const symbols = { fight: '⚔', elite: '☠', shrine: '✶', market: '⚖', rest: '☾', boss: '♆' }
-const labels = { fight: 'Fight', elite: 'Elite', shrine: 'Shrine', market: 'Market', rest: 'Rest', boss: 'The Tide' }
+const labels = { fight: 'Fight', elite: 'Elite', shrine: 'Shrine', market: 'Market', rest: 'Rest' }
 const board = createBoard($('board'))
 
 let run = loadRun()
@@ -92,6 +92,9 @@ const renderTitle = () => {
 
 const renderMap = () => {
   statsBar($('map-bar'))
+  const act = acts[run.actIndex]
+  const label = kind => (kind === 'boss' ? act.bossLabel : labels[kind])
+  $('act-name').textContent = act.name
   const open = openLanes(run)
   $('floors').replaceChildren(
     ...run.map.map((nodes, floor) =>
@@ -109,11 +112,11 @@ const renderMap = () => {
               type: 'button',
               className: `node ${node.kind}${can ? ' open' : ''}${here ? ' here' : ''}${lost ? ' lost' : ''}`,
               disabled: !can,
-              ariaLabel: `${labels[node.kind]}, floor ${floor + 1}`,
+              ariaLabel: `${label(node.kind)}, floor ${floor + 1}`,
               onclick: () => dispatch({ type: 'choose', lane: node.lane }),
             },
             el('span', { className: 'sym' }, symbols[node.kind]),
-            labels[node.kind],
+            label(node.kind),
           )
           button.dataset.lane = node.lane
           return button
@@ -137,6 +140,8 @@ const intentText = intent =>
     ward: `Wards ${intent.value}`,
     salt: `Salts ${intent.value} runes`,
     rise: `Swells +${intent.value}`,
+    smudge: `Smudges ${intent.value} runes`,
+    undertow: 'Drags a column under',
   })[intent.kind]
 
 const eventText = (combat, event) => {
@@ -296,8 +301,8 @@ const renderEnd = () => {
   const won = run.screen === 'victory'
   $('end-title').textContent = won ? 'The coast remembers' : 'Unwritten'
   $('end-text').textContent = won
-    ? 'The Unwriting Tide recedes. The names of the coast hold until the next night.'
-    : `The sea took you on floor ${run.floor + 1}.`
+    ? 'The lamp is lit again. The names of the coast hold until the next night.'
+    : `The sea took you in ${acts[run.actIndex].name}, floor ${run.floor + 1}.`
   const best = run.stats.best
   $('end-stats').replaceChildren(
     el('dt', {}, 'Fights won'),

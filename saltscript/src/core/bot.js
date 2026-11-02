@@ -1,4 +1,5 @@
 import { adjacent, canWrite, intentOf, readGlyph } from './combat.js'
+import { acts } from './data.js'
 import { rng } from './rng.js'
 import { act, createRun, reachable } from './run.js'
 
@@ -62,15 +63,21 @@ export const playRun = (seed, policy) => {
     run = act(run, path ? { type: 'write', path } : { type: 'endTurn' })
     if (run.screen !== 'combat') turns.push(run.combat.turn)
   }
-  return { won: run.screen === 'victory', floor: run.floor + 1, turns, hp: run.hp }
+  return {
+    won: run.screen === 'victory',
+    actsCleared: run.screen === 'victory' ? acts.length : run.actIndex,
+    floor: run.floor + 1,
+    turns,
+  }
 }
 
 export const summarize = (seeds, policy) => {
   const results = seeds.map(seed => playRun(seed, policy))
   const mean = values => values.reduce((sum, value) => sum + value, 0) / (values.length || 1)
   return {
+    firstActRate: results.filter(result => result.actsCleared >= 1).length / results.length,
     winRate: results.filter(result => result.won).length / results.length,
-    floor: mean(results.map(result => result.floor)),
+    actsCleared: mean(results.map(result => result.actsCleared)),
     turnsPerFight: mean(results.flatMap(result => result.turns)),
   }
 }

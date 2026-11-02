@@ -17,3 +17,4 @@ Rewritten by each run; keep it short.
 - A finished fight keeps `run.combat` while `run.screen` has already moved on; `dispatch` holds the combat view for `foePause`, so e2e must wait for the next section to be visible
 - `announce` in `src/ui/feedback.js` maps each `combat.events` kind to its feedback; a new intent needs an entry there
 - `src/ui/sound.js` is synthesized WebAudio; a new event kind needs an entry in `eventSounds` and the test in `test/sound.test.js` enforces it for foe intents
+- Acts live in `acts` in `data.js`; `run.actIndex` selects pools; a boss win calls `nextAct` then goes to `reward`; bands are about act 1 (`firstActRate`), a full bot run takes about 2 s

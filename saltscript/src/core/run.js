@@ -1,5 +1,5 @@
 import { createCombat, endTurn, write } from './combat.js'
-import { marginalia, pools, shrines, startingBag, writable } from './data.js'
+import { acts, marginalia, shrines, startingBag, writable } from './data.js'
 import { rng } from './rng.js'
 
 export const floors = 8
@@ -42,7 +42,7 @@ export const createMap = rand =>
 const runeFrom = (rand, run, bias = 0) => ({
   id: `r${run.nextId}`,
   ink: rand.pick(writable),
-  value: Math.min(4, 1 + Math.floor(rand.next() * (1.6 + run.floor / 3 + bias))),
+  value: Math.min(4, 1 + Math.floor(rand.next() * (1.6 + (run.floor + run.actIndex * floors) / 3 + bias))),
 })
 
 const runes = (rand, run, count, bias) => {
@@ -67,6 +67,7 @@ export const createRun = seed => {
   return {
     seed: rand.state(),
     origin: seed,
+    actIndex: 0,
     map: createMap(rand),
     floor: -1,
     lane: null,
@@ -112,7 +113,7 @@ const enter = (run, lane) => {
       hp: run.hp,
       maxHp: run.maxHp,
       marks: run.marks,
-      enemy: rand.pick(pools[node.kind]),
+      enemy: rand.pick(acts[run.actIndex].pools[node.kind]),
       floor,
       seed: rand.int(2 ** 31),
     })
@@ -133,21 +134,33 @@ const toMap = run => ({ ...run, screen: 'map', offer: null, combat: null })
 
 const upgrade = (bag, ids) => bag.map(r => (ids.includes(r.id) ? { ...r, value: Math.min(4, r.value + 1) } : r))
 
+const nextAct = (run, rand) => ({
+  ...run,
+  actIndex: run.actIndex + 1,
+  map: createMap(rand),
+  floor: -1,
+  lane: null,
+  trail: [],
+  hp: run.hp + Math.ceil((run.maxHp - run.hp) / 2),
+})
+
 const finishCombat = run => {
   const { combat } = run
   const best = (combat.best?.damage ?? -1) > (run.stats.best?.damage ?? -1) ? combat.best : run.stats.best
   const stats = { fights: run.stats.fights + 1, strokes: run.stats.strokes + combat.written, best }
   if (combat.status === 'lost') return { ...run, hp: 0, stats, screen: 'defeat' }
   const after = { ...run, hp: combat.hp, stats }
-  if (run.offer.kind === 'boss') return { ...after, screen: 'victory' }
+  if (run.offer.kind === 'boss' && run.actIndex === acts.length - 1) return { ...after, screen: 'victory' }
   const rand = rng(run.seed)
+  const onward = run.offer.kind === 'boss' ? nextAct(after, rand) : after
   const gold = 12 + rand.int(6) + (run.offer.kind === 'elite' ? 20 : 0) + (run.marks.includes('gildedEdge') ? 10 : 0)
-  const [choices, next] = runes(rand, after, 3, run.offer.kind === 'elite' ? 1 : 0)
+  const special = run.offer.kind !== 'fight'
+  const [choices, next] = runes(rand, onward, 3, special ? 1 : 0)
   return {
     ...next,
     gold: run.gold + gold,
     screen: 'reward',
-    offer: { gold, runes: choices, marks: run.offer.kind === 'elite' ? freshMarks(rand, after, 2) : [] },
+    offer: { gold, runes: choices, marks: special ? freshMarks(rand, onward, 2) : [] },
     seed: rand.state(),
   }
 }
