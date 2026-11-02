@@ -44,6 +44,8 @@ export const createBoard = canvas => {
       ctx.fill()
       ctx.stroke()
       const reach = r * crackProgress(rune)
+      ctx.strokeStyle = 'rgb(217 211 196 / 0.25)'
+      ctx.lineWidth = 1
       ctx.beginPath()
       for (const k of [0, 2, 4]) {
         const a = (Math.PI / 3) * k + Math.PI / 6

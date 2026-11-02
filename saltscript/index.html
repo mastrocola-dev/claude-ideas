@@ -42,6 +42,7 @@
         <summary>Inkwell and marginalia</summary>
         <div id="inkwell"></div>
       </details>
+      <button type="button" id="map-codex" class="ghost">Open the codex</button>
     </section>
 
     <section id="combat" class="screen" hidden>
@@ -55,7 +56,11 @@
         <p id="log" class="log" aria-live="polite"></p>
         <div class="floats" aria-hidden="true"></div>
       </article>
-      <p id="preview" class="preview">Trace three or more touching runes</p>
+      <p id="hint" class="hint" hidden></p>
+      <div class="slate">
+        <p id="preview" class="preview">Trace three or more touching runes</p>
+        <button type="button" id="combat-codex" class="codex-open" aria-label="Open the codex">?</button>
+      </div>
       <canvas id="board" aria-label="Rune board"></canvas>
       <footer id="you" class="player">
         <div class="floats" aria-hidden="true"></div>
@@ -112,6 +117,19 @@
       <button type="button" id="end-new" class="primary">Begin a new night</button>
       <button type="button" id="end-title-screen" class="ghost">Back to the lighthouse</button>
     </section>
+
+    <dialog id="codex" class="codex">
+      <h2 class="screen-title" tabindex="-1" autofocus>The Codex</h2>
+      <p class="label">Glyphs</p>
+      <dl id="codex-tiers" class="guide"></dl>
+      <p class="label">Inks</p>
+      <dl id="codex-inks" class="guide"></dl>
+      <p class="label">Intents</p>
+      <dl id="codex-intents" class="guide"></dl>
+      <p class="label">Your marginalia</p>
+      <dl id="codex-marks" class="guide"></dl>
+      <form method="dialog"><button id="codex-close" class="primary">Close the book</button></form>
+    </dialog>
 
     <script type="module" src="src/main.js"></script>
   </body>

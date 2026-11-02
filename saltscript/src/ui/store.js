@@ -39,7 +39,7 @@ const metaKey = 'saltscript.meta'
 
 export const loadMeta = () => {
   try {
-    return JSON.parse(localStorage.getItem(metaKey)) ?? createMeta()
+    return { ...createMeta(), ...JSON.parse(localStorage.getItem(metaKey)) }
   } catch {
     return createMeta()
   }

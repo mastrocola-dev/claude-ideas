@@ -673,3 +673,63 @@ button.rune {
   gap: 8px;
   text-align: left;
 }
+
+.hint {
+  margin: 0;
+  padding: 6px 12px;
+  border-left: 3px solid var(--lamp);
+  color: var(--foam);
+  font-size: 14px;
+}
+
+.slate {
+  position: relative;
+}
+
+.slate .preview {
+  padding: 0 44px;
+}
+
+.codex-open {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--mist);
+  font-size: 20px;
+}
+
+.codex {
+  width: min(100vw - 24px, 480px);
+  max-height: 90dvh;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--deep);
+  color: var(--foam);
+}
+
+.codex::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.guide {
+  margin: 0 0 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.guide dt {
+  font-weight: 700;
+}
+
+.guide dd {
+  margin: 0;
+  color: var(--mist);
+  font-size: 14px;
+}
+
+.codex .primary {
+  width: 100%;
+}

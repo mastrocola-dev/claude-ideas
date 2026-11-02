@@ -317,3 +317,25 @@ export const shrines = {
     ],
   },
 }
+
+export const firstFightHints = [
+  'Swipe across three or more touching runes, in any of eight directions.',
+  'One ink makes a Seal, worth +1 mult. Brine and Ember wound, Moss wards.',
+  'You write two strokes a turn, then the foe acts on the intent shown above.',
+]
+
+export const glyphTiers = [
+  ['3 or 4 runes', '× 1 mult, a Line or Seal'],
+  ['5 or 6 runes', '× 2 mult, a Verse or Litany'],
+  ['7 or more runes', '× 3 mult, a Canticle or Litany'],
+  ['One ink only', '+1 mult'],
+]
+
+export const intentGuide = [
+  ['Strikes', 'Wounds you. Ward absorbs it first.'],
+  ['Wards', 'Absorbs your next wounds until its turn.'],
+  ['Salts', 'Turns runes to Salt, which crumbles after three turns.'],
+  ['Swells', 'Every later strike hits harder.'],
+  ['Smudges', 'Lowers runes on the page by one.'],
+  ['Drags', 'Shifts a column of the page down.'],
+]

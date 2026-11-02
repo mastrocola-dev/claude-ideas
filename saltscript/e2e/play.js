@@ -48,8 +48,16 @@ try {
     window.saltscript.run().map[0].reduce((sum, node) => sum + node.links.length, 0),
   )
   assert.equal(await page.locator('#links line[data-floor="0"]').count(), firstFloorLinks)
+  await page.click('#map-codex')
+  assert.equal(await page.locator('#codex').isVisible(), true)
+  await page.click('#codex-close')
   await page.click('.node.open >> nth=0')
   assert.equal(await screen(), 'combat')
+  assert.equal(await page.locator('#hint').isVisible(), true)
+  await page.click('#combat-codex')
+  assert.match(await page.textContent('#codex-tiers'), /Canticle/)
+  await page.screenshot({ path: `${shots}codex.png` })
+  await page.click('#codex-close')
   let shot = false
   for (let stroke = 0; stroke < 60 && (await screen()) === 'combat'; stroke++) {
     await foeSettled()
@@ -79,6 +87,7 @@ try {
     }
   }
   assert.equal(await screen(), 'reward')
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('saltscript.meta')).hints), 3)
   await page.waitForSelector('#reward:not([hidden])')
   await page.screenshot({ path: `${shots}reward.png` })
   const before = await page.evaluate(() => window.saltscript.run().bag.length)
@@ -91,6 +100,8 @@ try {
   assert.ok((await page.locator('.node.open').count()) >= 1)
   assert.ok((await page.locator('#links line.walked, .node.lost').count()) >= 1)
   await page.screenshot({ path: `${shots}map-walked.png` })
+  await page.click('.node.open >> nth=0')
+  if ((await screen()) === 'combat') assert.equal(await page.locator('#hint').isVisible(), false)
   await page.evaluate(() =>
     localStorage.setItem(
       'saltscript.meta',

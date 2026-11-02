@@ -1,8 +1,8 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { canStartDaily, createDailyRun, dateKey, recordDaily, shareText, startDaily } from './core/daily.js'
-import { acts, inks, marginalia, scribes, shrines, unlockCosts } from './core/data.js'
-import { bank, chooseScribe, lamplightEarned, runOptions, spend } from './core/meta.js'
+import { acts, glyphTiers, inks, intentGuide, marginalia, scribes, shrines, unlockCosts } from './core/data.js'
+import { bank, chooseScribe, hintFor, hintSeen, lamplightEarned, runOptions, spend } from './core/meta.js'
 import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
@@ -306,6 +306,9 @@ const renderCombat = () => {
   )
   $('end-turn').disabled = !canAct()
   renderPreview(combat)
+  const hint = hintFor(meta)
+  $('hint').hidden = !hint
+  $('hint').textContent = hint ?? ''
   show('combat')
   queueFoe()
 }
@@ -395,6 +398,20 @@ const renderShrine = () => {
   show('shrine')
 }
 
+const guideRows = rows => rows.map(([term, meaning]) => el('div', {}, el('dt', {}, term), el('dd', {}, meaning)))
+
+const openCodex = () => {
+  $('codex-tiers').replaceChildren(...guideRows(glyphTiers))
+  $('codex-inks').replaceChildren(...guideRows(Object.values(inks).map(ink => [ink.name, ink.does])))
+  $('codex-intents').replaceChildren(...guideRows(intentGuide))
+  $('codex-marks').replaceChildren(
+    ...(run.marks.length
+      ? guideRows(run.marks.map(key => [marginalia[key].name, marginalia[key].text]))
+      : [el('p', {}, 'None yet.')]),
+  )
+  $('codex').showModal()
+}
+
 const renderEnd = () => {
   const won = run.screen === 'victory'
   $('end-title').textContent = won ? 'The coast remembers' : 'Unwritten'
@@ -458,6 +475,7 @@ canvas.addEventListener('pointermove', event => {
 })
 canvas.addEventListener('pointerup', () => {
   if (path.length && isValid(run.combat, path)) {
+    meta = saveMeta(hintSeen(meta))
     dispatch({ type: 'write', path })
     return
   }
@@ -474,6 +492,8 @@ $('mute').onclick = () => {
   renderMute()
 }
 $('new-run').onclick = beginRun
+$('map-codex').onclick = openCodex
+$('combat-codex').onclick = openCodex
 $('daily').onclick = beginDaily
 $('continue').onclick = () => render()
 $('end-new').onclick = beginRun

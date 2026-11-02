@@ -1,9 +1,9 @@
-import { unlockCosts } from './data.js'
+import { firstFightHints, unlockCosts } from './data.js'
 import { floors } from './run.js'
 
 const bossLamplight = 10
 
-export const createMeta = () => ({ lamplight: 0, unlocked: [], scribe: 'lastScribe', banked: null })
+export const createMeta = () => ({ lamplight: 0, unlocked: [], scribe: 'lastScribe', banked: null, hints: 0 })
 
 export const lamplightEarned = run => {
   const won = run.screen === 'victory' ? 1 : 0
@@ -25,3 +25,7 @@ export const chooseScribe = (meta, key) =>
   key === 'lastScribe' || meta.unlocked.includes(key) ? { ...meta, scribe: key } : meta
 
 export const runOptions = meta => ({ scribe: meta.scribe, unlocked: meta.unlocked })
+
+export const hintFor = meta => firstFightHints[meta.hints] ?? null
+
+export const hintSeen = meta => (hintFor(meta) ? { ...meta, hints: meta.hints + 1 } : meta)

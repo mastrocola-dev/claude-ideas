@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S11 Codex and first-fight guidance
-
-A codex sheet reachable from map and combat: glyph tiers table, inks, intents, current marginalia. The first fight of the first run shows three one-line hints in sequence. Done when the hints appear once and the codex opens from both screens (e2e).
-
 ### S12 PWA
 
 Manifest, icon, service worker caching the app shell and fonts, offline play after the first visit. Done when e2e reloads offline and starts a run.
@@ -40,6 +36,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S08 More shrines: Ink Leech, Tide Bell, Mapmaker's Corpse, Lamp That Asks; effects moved to a table (2026-11-02)
 - S09 Meta progression: Lamplight banked per run, unlockable marginalia and the Ember Novice on the title (2026-11-02)
 - S10 Daily Tide: UTC-seeded run, one attempt per date, share text with ink row (2026-11-02)
+- S11 Codex and first-fight guidance: codex dialog from map and combat, three hints once (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

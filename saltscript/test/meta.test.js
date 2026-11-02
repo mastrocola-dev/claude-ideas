@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { bank, chooseScribe, createMeta, lamplightEarned, runOptions, spend } from '../src/core/meta.js'
+import {
+  bank,
+  chooseScribe,
+  createMeta,
+  hintFor,
+  hintSeen,
+  lamplightEarned,
+  runOptions,
+  spend,
+} from '../src/core/meta.js'
 import { act, createRun } from '../src/core/run.js'
 
 const rich = { ...createMeta(), lamplight: 100 }
@@ -50,4 +59,16 @@ test('the Ember Novice must be unlocked and changes the new run', () => {
   assert.deepEqual(run.marks, ['emberPsalm'])
   const embers = run.bag.filter(rune => rune.ink === 'ember').length
   assert.ok(embers > createRun(1).bag.filter(rune => rune.ink === 'ember').length)
+})
+
+test('three hints show in order, then never again', () => {
+  let meta = createMeta()
+  const seen = []
+  while (hintFor(meta)) {
+    seen.push(hintFor(meta))
+    meta = hintSeen(meta)
+  }
+  assert.equal(seen.length, 3)
+  assert.equal(hintFor(meta), null)
+  assert.equal(hintSeen(meta), meta)
 })

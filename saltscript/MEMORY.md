@@ -22,3 +22,4 @@ Rewritten by each run; keep it short.
 - Shrines: text and options in `data.js`, effects by option index in `shrineEffects` in `run.js`; an option without an effect walks away; `run.freeStep` lets `reachable` open every lane once
 - `src/core/meta.js` is pure; `createRun(seed, runOptions(meta))`; `run.locked` filters marginalia offers; meta lives under `saltscript.meta`, banks once per `run.origin` and on load
 - `src/core/daily.js`: `createDailyRun(date)` sets `run.daily`; `meta.daily` holds `{date, result}`; `run.stats.inks` records every written glyph's ink
+- `meta.hints` counts first-fight hints shown, advanced on each written stroke; the codex is a `<dialog>` filled on open
