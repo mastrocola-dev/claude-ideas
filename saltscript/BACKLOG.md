@@ -13,7 +13,6 @@ Empty.
 - Balance bands rest on bots, not people: the human-like policy never writes past 4 runes, so the Tide and Choirmother were cut to 125 and 110 base health; real players reaching 5-rune Verses may find act 1 easy
 - Lamplight costs (15, 30, 40) and earnings (1 per floor, 10 per boss) are a first guess; unlocks are not yet in the balance harness
 - Daily runs ignore unlocks and scribes so scores compare; starting another run mid-Tide forfeits that day's record
-- S14 asks to update the root `README.md` table, but the agent rules limit work to `saltscript/`, so the root is untouched and its Saltscript row still says "Prototype in progress"; the author can change it to "Prototype complete"
 
 ## Done
 
