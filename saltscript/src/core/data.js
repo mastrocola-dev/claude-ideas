@@ -15,6 +15,28 @@ export const startingBag = [
   ...Array(2).fill(['moss', 2]),
 ]
 
+export const scribes = {
+  lastScribe: {
+    name: 'The Last Scribe',
+    text: 'An even hand across all three inks.',
+    bag: startingBag,
+    marks: [],
+  },
+  emberNovice: {
+    name: 'The Ember Novice',
+    text: 'A bag tilted to Ember, and starts with Ember Psalm.',
+    bag: [
+      ...Array(6).fill(['brine', 1]),
+      ...Array(12).fill(['ember', 1]),
+      ...Array(2).fill(['ember', 2]),
+      ...Array(6).fill(['moss', 1]),
+    ],
+    marks: ['emberPsalm'],
+  },
+}
+
+export const unlockCosts = { saltedTongue: 15, fullInkwell: 15, undyingEmber: 30, leanHand: 30, emberNovice: 40 }
+
 export const enemies = {
   acolyte: {
     name: 'Drowned Acolyte',

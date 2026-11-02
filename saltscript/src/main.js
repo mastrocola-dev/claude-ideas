@@ -1,12 +1,13 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
-import { acts, inks, marginalia, shrines } from './core/data.js'
+import { acts, inks, marginalia, scribes, shrines, unlockCosts } from './core/data.js'
+import { bank, chooseScribe, lamplightEarned, runOptions, spend } from './core/meta.js'
 import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
 import { drawRoutes } from './ui/routes.js'
 import { isMuted, scratch, setMuted } from './ui/sound.js'
-import { loadRun, saveRun } from './ui/store.js'
+import { loadMeta, loadRun, saveMeta, saveRun } from './ui/store.js'
 
 const $ = id => document.getElementById(id)
 const screens = ['title', 'map', 'combat', 'reward', 'market', 'rest', 'shrine', 'end']
@@ -15,6 +16,7 @@ const labels = { fight: 'Fight', elite: 'Elite', shrine: 'Shrine', market: 'Mark
 const board = createBoard($('board'))
 
 let run = loadRun()
+let meta = run ? saveMeta(bank(loadMeta(), run)) : loadMeta()
 let path = []
 let foeTimer = null
 const foePause = 600
@@ -89,8 +91,66 @@ const renderMute = () => {
   $('mute').ariaPressed = String(isMuted())
 }
 
+const unlockTitle = key => marginalia[key] ?? scribes[key]
+
+const renderLamplight = () => {
+  const known = meta.lamplight > 0 || meta.unlocked.length > 0
+  $('meta').hidden = !known
+  if (!known) return
+  $('lamplight').textContent = `Lamplight ${meta.lamplight}`
+  $('unlocks').replaceChildren(
+    ...Object.entries(unlockCosts).map(([key, cost]) => {
+      const owned = meta.unlocked.includes(key)
+      const button = el(
+        'button',
+        {
+          type: 'button',
+          className: 'choice',
+          disabled: owned || meta.lamplight < cost,
+          onclick: () => {
+            meta = saveMeta(spend(meta, key))
+            renderLamplight()
+          },
+        },
+        el('span', { className: 'mark' }, '✶'),
+        el('span', {}, el('strong', {}, unlockTitle(key).name), el('small', {}, unlockTitle(key).text)),
+        el('span', { className: 'price' }, owned ? 'Lit' : `${cost} light`),
+      )
+      button.dataset.unlock = key
+      return button
+    }),
+  )
+  const hands = Object.keys(scribes).filter(key => key === 'lastScribe' || meta.unlocked.includes(key))
+  $('scribes').hidden = hands.length < 2
+  $('scribes').replaceChildren(
+    ...hands.map(key => {
+      const button = el(
+        'button',
+        {
+          type: 'button',
+          className: meta.scribe === key ? 'secondary small' : 'ghost',
+          ariaPressed: String(meta.scribe === key),
+          onclick: () => {
+            meta = saveMeta(chooseScribe(meta, key))
+            renderLamplight()
+          },
+        },
+        meta.scribe === key ? `${scribes[key].name} · chosen` : scribes[key].name,
+      )
+      button.dataset.scribe = key
+      return button
+    }),
+  )
+}
+
+const beginRun = () => {
+  run = saveRun(createRun(Date.now() % 2 ** 31, runOptions(meta)))
+  render()
+}
+
 const renderTitle = () => {
   renderMute()
+  renderLamplight()
   $('continue').hidden = !run || ['victory', 'defeat'].includes(run.screen)
   show('title')
 }
@@ -310,6 +370,7 @@ const renderEnd = () => {
     ? 'The lamp is lit again. The names of the coast hold until the next night.'
     : `The sea took you in ${acts[run.actIndex].name}, floor ${run.floor + 1}.`
   const best = run.stats.best
+  meta = saveMeta(bank(meta, run))
   $('end-stats').replaceChildren(
     el('dt', {}, 'Fights won'),
     el('dd', {}, `${run.stats.fights - (won ? 0 : 1)}`),
@@ -319,6 +380,8 @@ const renderEnd = () => {
     el('dd', {}, best ? `${best.name}, ${best.damage}` : 'none'),
     el('dt', {}, 'Inkwell'),
     el('dd', {}, `${run.bag.length} runes, ${run.marks.length} marginalia`),
+    el('dt', {}, 'Lamplight earned'),
+    el('dd', {}, `${lamplightEarned(run)}`),
   )
   show('end')
 }
@@ -377,15 +440,10 @@ $('mute').onclick = () => {
   setMuted(!isMuted())
   renderMute()
 }
-$('new-run').onclick = () => {
-  run = saveRun(createRun(Date.now() % 2 ** 31))
-  render()
-}
+$('new-run').onclick = beginRun
 $('continue').onclick = () => render()
-$('end-new').onclick = () => {
-  run = saveRun(createRun(Date.now() % 2 ** 31))
-  render()
-}
+$('end-new').onclick = beginRun
+$('end-title-screen').onclick = renderTitle
 $('end-turn').onclick = () => dispatch({ type: 'endTurn' })
 $('reward-skip').onclick = () => dispatch({ type: 'leave' })
 $('market-leave').onclick = () => dispatch({ type: 'leave' })

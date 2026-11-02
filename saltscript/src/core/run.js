@@ -1,5 +1,5 @@
 import { createCombat, endTurn, write } from './combat.js'
-import { acts, marginalia, rarityWeights, shrines, startingBag, writable } from './data.js'
+import { acts, marginalia, rarityWeights, scribes, shrines, unlockCosts, writable } from './data.js'
 import { rng } from './rng.js'
 
 export const floors = 8
@@ -57,7 +57,7 @@ const runes = (rand, run, count, bias) => {
 
 const freshMarks = (rand, run, count) => {
   const chosen = []
-  const unseen = key => !run.marks.includes(key) && !chosen.includes(key)
+  const unseen = key => !run.marks.includes(key) && !run.locked.includes(key) && !chosen.includes(key)
   for (let i = 0; i < count; i++) {
     const rarity = weighted(rand, rarityWeights)
     const open = Object.keys(marginalia).filter(unseen)
@@ -73,8 +73,11 @@ export const markPrice = 70
 export const removePrice = 45
 export const minBag = 12
 
-export const createRun = seed => {
+const lockedMarks = unlocked => Object.keys(unlockCosts).filter(key => marginalia[key] && !unlocked.includes(key))
+
+export const createRun = (seed, { scribe = 'lastScribe', unlocked = [] } = {}) => {
   const rand = rng(seed)
+  const { bag, marks } = scribes[scribe]
   return {
     seed: rand.state(),
     origin: seed,
@@ -87,9 +90,10 @@ export const createRun = seed => {
     hp: 70,
     maxHp: 70,
     gold: 30,
-    bag: startingBag.map(([ink, value], i) => ({ id: `r${i}`, ink, value })),
-    nextId: startingBag.length,
-    marks: [],
+    bag: bag.map(([ink, value], i) => ({ id: `r${i}`, ink, value })),
+    nextId: bag.length,
+    marks,
+    locked: lockedMarks(unlocked),
     screen: 'map',
     combat: null,
     offer: null,
@@ -233,7 +237,9 @@ const shrineEffects = {
       return { ...run, marks: run.marks.filter(key => key !== lost), maxHp, hp: maxHp }
     },
     (run, rand) => {
-      const open = Object.keys(marginalia).filter(key => marginalia[key].rarity === 'rare' && !run.marks.includes(key))
+      const open = Object.keys(marginalia).filter(
+        key => marginalia[key].rarity === 'rare' && !run.marks.includes(key) && !run.locked.includes(key),
+      )
       const maxHp = run.maxHp - 12
       const hp = Math.min(run.hp, maxHp)
       return { ...run, maxHp, hp, marks: open.length ? [...run.marks, rand.pick(open)] : run.marks }

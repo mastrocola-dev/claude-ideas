@@ -68,7 +68,7 @@ button:disabled {
 }
 
 .center {
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
 }
@@ -664,4 +664,15 @@ button.rune {
   .float {
     animation-name: fade-away;
   }
+}
+
+.meta {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.price {
+  white-space: nowrap;
 }

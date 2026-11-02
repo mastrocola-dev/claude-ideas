@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S09 Meta progression
-
-Lamplight earned per run (floors cleared plus bosses). Spending it unlocks marginalia into the pools and a second scribe, the Ember Novice (bag tilted to Ember, starts with Ember Psalm). Title screen shows the unlocks; progress stored separately from the run. Done when unlocks persist and change new runs (tests and e2e).
-
 ### S10 Daily Tide
 
 A run seeded from the UTC date, one recorded attempt per day, share text (date, floor reached, greatest glyph, a row of ink glyphs) via `navigator.share` with clipboard fallback. Done when two runs on the same date have the same map and the share format is tested.
@@ -33,6 +29,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - Board is 4 columns × 5 rows so runes stay large on a phone; the bag starts at 26 and cannot be scraped below 12, so a thin bag leaves empty cells
 - Salt runes vanish when written through with Saltwise instead of returning to the bag
 - Balance bands rest on bots, not people: the human-like policy never writes past 4 runes, so the Tide and Choirmother were cut to 125 and 110 base health; real players reaching 5-rune Verses may find act 1 easy
+- Lamplight costs (15, 30, 40) and earnings (1 per floor, 10 per boss) are a first guess; unlocks are not yet in the balance harness
 
 ## Done
 
@@ -44,6 +41,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S06 Acts two and three: Sunken Nave and Lighthouse, smudge and undertow, bosses offer marginalia, half heal between acts (2026-11-02)
 - S07 More marginalia: eight new with rarities, rolled by weight in rewards and market (2026-11-02)
 - S08 More shrines: Ink Leech, Tide Bell, Mapmaker's Corpse, Lamp That Asks; effects moved to a table (2026-11-02)
+- S09 Meta progression: Lamplight banked per run, unlockable marginalia and the Ember Novice on the title (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

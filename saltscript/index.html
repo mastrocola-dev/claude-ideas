@@ -21,6 +21,11 @@
       <button type="button" id="continue" class="primary" hidden>Continue the night</button>
       <button type="button" id="new-run" class="primary">Begin a new night</button>
       <button type="button" id="mute" class="ghost"></button>
+      <div id="meta" class="meta" hidden>
+        <p id="lamplight" class="label"></p>
+        <div id="scribes" class="stack" hidden></div>
+        <div id="unlocks" class="choices"></div>
+      </div>
       <p class="how">Swipe across three or more touching runes to write a glyph. One ink makes a Seal. Brine and Ember wound, Ember burns, Moss wards.</p>
     </section>
 
@@ -102,6 +107,7 @@
       <p id="end-text" class="lede"></p>
       <dl id="end-stats" class="stats"></dl>
       <button type="button" id="end-new" class="primary">Begin a new night</button>
+      <button type="button" id="end-title-screen" class="ghost">Back to the lighthouse</button>
     </section>
 
     <script type="module" src="src/main.js"></script>

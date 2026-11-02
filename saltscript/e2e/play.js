@@ -91,6 +91,21 @@ try {
   assert.ok((await page.locator('.node.open').count()) >= 1)
   assert.ok((await page.locator('#links line.walked, .node.lost').count()) >= 1)
   await page.screenshot({ path: `${shots}map-walked.png` })
+  await page.evaluate(() =>
+    localStorage.setItem(
+      'saltscript.meta',
+      JSON.stringify({ lamplight: 100, unlocked: [], scribe: 'lastScribe', banked: null }),
+    ),
+  )
+  await page.reload()
+  await page.click('[data-unlock="emberNovice"]')
+  await page.click('[data-scribe="emberNovice"]')
+  await page.screenshot({ path: `${shots}unlocks.png`, fullPage: true })
+  await page.reload()
+  assert.equal(await page.locator('[data-unlock="emberNovice"]').isDisabled(), true)
+  assert.match(await page.textContent('#lamplight'), /Lamplight 60/)
+  await page.click('#new-run')
+  assert.deepEqual(await page.evaluate(() => window.saltscript.run().marks), ['emberPsalm'])
   assert.deepEqual(errors, [])
   console.log('e2e passed: first fight won by real swipes, reward taken, run continued after reload')
 } finally {
