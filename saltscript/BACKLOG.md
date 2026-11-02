@@ -4,9 +4,7 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S14 Showcase
-
-`README.md` with pitch, how to play, how to run, screenshots of title, map, combat and reward; link to `docs/concept.md`. Update the table in the repository root README. Done when it renders on GitHub with the images.
+Empty.
 
 ## Needs author
 
@@ -15,6 +13,7 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 - Balance bands rest on bots, not people: the human-like policy never writes past 4 runes, so the Tide and Choirmother were cut to 125 and 110 base health; real players reaching 5-rune Verses may find act 1 easy
 - Lamplight costs (15, 30, 40) and earnings (1 per floor, 10 per boss) are a first guess; unlocks are not yet in the balance harness
 - Daily runs ignore unlocks and scribes so scores compare; starting another run mid-Tide forfeits that day's record
+- S14 asks to update the root `README.md` table, but the agent rules limit work to `saltscript/`, so the root is untouched and its Saltscript row still says "Prototype in progress"; the author can change it to "Prototype complete"
 
 ## Done
 
@@ -31,6 +30,7 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 - S11 Codex and first-fight guidance: codex dialog from map and combat, three hints once (2026-11-02)
 - S12 PWA: manifest, service worker with cached shell and fonts, offline play (2026-11-02)
 - S13 Accessibility: axe on every screen, tap and Write input, an ink shape on every rune (2026-11-02)
+- S14 Showcase: `README.md` with pitch, how to play, how to run and screenshots; root table left to the author (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 
