@@ -15,3 +15,20 @@ export const saveRun = run => {
   } catch {}
   return run
 }
+
+const muteKey = 'saltscript.muted'
+
+export const loadMuted = () => {
+  try {
+    return localStorage.getItem(muteKey) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export const saveMuted = muted => {
+  try {
+    localStorage.setItem(muteKey, String(muted))
+  } catch {}
+  return muted
+}

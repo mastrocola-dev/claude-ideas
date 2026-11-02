@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S04 Sound and haptics
-
-WebAudio synthesized sounds: a quill scratch on each rune added to the path (pitch rises with length), a stamp on write that deepens with mult, wound, burn hiss, salt crackle, victory and defeat. Mute toggle on the title, persisted. `navigator.vibrate` guarded. Done when every event has sound, mute persists after reload (e2e) and nothing plays in Node.
-
 ### S05 Balance harness
 
 `src/core/bot.js` gains a human-like policy (random among the top three paths, depth 4, seeded). `npm run balance` prints win rate, floor reached and turns per fight over 50 seeds for both policies. Tune data so the exhaustive bot wins at least 90% of act 1 and the human-like bot 40–60%. Record the table in `docs/balance.md`. Done when a test pins both rates within the bands on 20 seeds.
@@ -59,6 +55,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S01 Playable MVP: map, fights, glyph scoring, rewards, market, rest, shrines, boss, saved runs, e2e (2026-11-02, built in the conversation)
 - S02 Map routes: SVG links behind the nodes, walked trail, unreachable nodes dimmed (2026-11-02)
 - S03 Combat feel: floats, glyph flourish, 600 ms foe pause, salt cracks, reduced motion (2026-11-02)
+- S04 Sound and haptics: synthesized cues per event, persisted mute, guarded vibrate (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

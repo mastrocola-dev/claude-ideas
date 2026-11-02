@@ -37,6 +37,11 @@ const foeSettled = () =>
 try {
   await page.goto(`http://localhost:${port}/`)
   await page.screenshot({ path: `${shots}title.png` })
+  assert.equal(await page.textContent('#mute'), 'Sound on')
+  await page.click('#mute')
+  await page.reload()
+  assert.equal(await page.textContent('#mute'), 'Sound off')
+  await page.click('#mute')
   await page.click('#new-run')
   await page.screenshot({ path: `${shots}map.png` })
   const firstFloorLinks = await page.evaluate(() =>

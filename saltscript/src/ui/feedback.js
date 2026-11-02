@@ -1,3 +1,5 @@
+import { defeat, playEvent, victory } from './sound.js'
+
 const float = (host, text, tone) => {
   const mark = document.createElement('span')
   mark.className = `float ${tone}`
@@ -51,5 +53,10 @@ const reactions = {
 
 export const announce = (before, after) => {
   const stage = { foe: document.getElementById('foe'), you: document.getElementById('you'), before, after }
-  for (const event of after.events) reactions[event.kind](stage, event)
+  for (const event of after.events) {
+    reactions[event.kind](stage, event)
+    playEvent(event)
+  }
+  if (after.status === 'won') victory()
+  if (after.status === 'lost') defeat()
 }

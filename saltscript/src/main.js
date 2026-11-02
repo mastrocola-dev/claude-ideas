@@ -5,6 +5,7 @@ import { act, createRun, markPrice, nodeAt, openLanes, removePrice, runePrice } 
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
 import { drawRoutes } from './ui/routes.js'
+import { isMuted, scratch, setMuted } from './ui/sound.js'
 import { loadRun, saveRun } from './ui/store.js'
 
 const $ = id => document.getElementById(id)
@@ -78,7 +79,13 @@ const queueFoe = () => {
   }, foePause)
 }
 
+const renderMute = () => {
+  $('mute').textContent = isMuted() ? 'Sound off' : 'Sound on'
+  $('mute').ariaPressed = String(isMuted())
+}
+
 const renderTitle = () => {
+  renderMute()
   $('continue').hidden = !run || ['victory', 'defeat'].includes(run.screen)
   show('title')
 }
@@ -326,7 +333,10 @@ const extend = event => {
   const cell = board.cellAt(event.clientX, event.clientY)
   if (cell === null) return
   if (cell === path.at(-2)) path = path.slice(0, -1)
-  else if (canExtend(run.combat, path, cell)) path = [...path, cell]
+  else if (canExtend(run.combat, path, cell)) {
+    path = [...path, cell]
+    scratch(path.length)
+  }
   renderPreview(run.combat)
 }
 
@@ -352,6 +362,10 @@ window.addEventListener('resize', () => {
   if (run?.screen === 'map') drawRoutes($('links'), $('floors'), run)
 })
 
+$('mute').onclick = () => {
+  setMuted(!isMuted())
+  renderMute()
+}
 $('new-run').onclick = () => {
   run = saveRun(createRun(Date.now() % 2 ** 31))
   render()

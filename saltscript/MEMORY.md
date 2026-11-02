@@ -16,3 +16,4 @@ Rewritten by each run; keep it short.
 - `write` no longer runs the foe: at 0 strokes the UI waits `foePause` then dispatches `endTurn`; `bestPath` returns null at 0 strokes, so bots and e2e fall through to `endTurn`
 - A finished fight keeps `run.combat` while `run.screen` has already moved on; `dispatch` holds the combat view for `foePause`, so e2e must wait for the next section to be visible
 - `announce` in `src/ui/feedback.js` maps each `combat.events` kind to its feedback; a new intent needs an entry there
+- `src/ui/sound.js` is synthesized WebAudio; a new event kind needs an entry in `eventSounds` and the test in `test/sound.test.js` enforces it for foe intents
