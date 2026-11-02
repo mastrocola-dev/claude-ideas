@@ -1,0 +1,525 @@
+:root {
+  --abyss: #0b161c;
+  --deep: #12232b;
+  --kelp: #1c3640;
+  --line: #2b4b55;
+  --foam: #e8efe9;
+  --mist: #94adae;
+  --lamp: #f2b45a;
+  --blood: #d8574e;
+  --brine: #4fa8c9;
+  --ember: #e8793f;
+  --moss: #93b85c;
+  --salt: #d9d3c4;
+  --display: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --body: "Alegreya Sans", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: radial-gradient(ellipse at 50% -10%, #1d3a44 0%, var(--abyss) 60%);
+  background-color: var(--abyss);
+  color: var(--foam);
+  font: 16px / 1.45 var(--body);
+  overflow: hidden;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--lamp);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px))
+    calc(env(safe-area-inset-bottom, 0px) + 20px) max(16px, env(safe-area-inset-left, 0px));
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.screen[hidden] {
+  display: none;
+}
+
+.center {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.eyebrow,
+.label {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.logo {
+  margin: 0;
+  font: 64px / 1 var(--display);
+  letter-spacing: 0.02em;
+  color: var(--foam);
+  text-shadow: 0 0 24px rgb(242 180 90 / 0.35);
+}
+
+.logo.small {
+  font-size: 44px;
+}
+
+.lede {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--mist);
+  font-size: 17px;
+}
+
+.center .lede {
+  margin-bottom: 16px;
+}
+
+.how {
+  margin: 20px 0 0;
+  max-width: 36ch;
+  font-size: 14px;
+  color: var(--mist);
+}
+
+.screen-title {
+  margin: 4px 0;
+  font: 30px / 1.1 var(--display);
+  text-wrap: balance;
+}
+
+.primary,
+.secondary,
+.ghost {
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.primary {
+  background: var(--lamp);
+  color: #2a1a04;
+}
+
+.secondary {
+  background: var(--kelp);
+  border: 1px solid var(--line);
+}
+
+.secondary.small {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 15px;
+}
+
+.ghost {
+  background: none;
+  color: var(--mist);
+}
+
+.center .primary {
+  width: min(280px, 100%);
+}
+
+.bar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--mist);
+}
+
+.bar b {
+  color: var(--foam);
+}
+
+.floors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+}
+
+.floor {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  position: relative;
+}
+
+.node {
+  min-height: 54px;
+  border-radius: 14px;
+  background: var(--deep);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font-size: 13px;
+  color: var(--mist);
+}
+
+.node .sym {
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--foam);
+}
+
+.node.open {
+  border-color: var(--lamp);
+  box-shadow:
+    0 0 0 1px var(--lamp),
+    0 0 18px rgb(242 180 90 / 0.25);
+  color: var(--foam);
+}
+
+.node.here {
+  background: var(--kelp);
+  border-color: var(--foam);
+}
+
+.node.boss {
+  grid-column: 2;
+}
+
+.node.gap {
+  visibility: hidden;
+}
+
+.inkwell {
+  background: var(--deep);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+
+.inkwell summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.bag {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.rune {
+  --ink: var(--salt);
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--ink) 75%, white), var(--ink) 60%);
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.25);
+  color: #10202a;
+  font: 15px / 1 var(--display);
+}
+
+.rune.brine {
+  --ink: var(--brine);
+}
+
+.rune.ember {
+  --ink: var(--ember);
+}
+
+.rune.moss {
+  --ink: var(--moss);
+}
+
+button.rune {
+  border: 0;
+}
+
+.choices {
+  display: grid;
+  gap: 10px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--deep);
+  border: 1px solid var(--line);
+}
+
+.choice strong {
+  display: block;
+  font-size: 17px;
+}
+
+.choice small {
+  color: var(--mist);
+  font-size: 14px;
+}
+
+.choice .price {
+  margin-left: auto;
+  color: var(--lamp);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--kelp);
+  color: var(--lamp);
+  font: 18px / 1 var(--display);
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+#combat {
+  gap: 8px;
+}
+
+.foe {
+  background: var(--deep);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.foe.hit {
+  animation: hit 0.35s ease-out;
+}
+
+@keyframes hit {
+  30% {
+    transform: translateX(-6px);
+    border-color: var(--blood);
+  }
+  60% {
+    transform: translateX(5px);
+  }
+}
+
+.foe-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.foe-head h2 {
+  margin: 0;
+  font: 22px / 1.1 var(--display);
+}
+
+.intent {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--kelp);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.intent.attack {
+  background: color-mix(in srgb, var(--blood) 30%, var(--deep));
+  color: #ffd9d4;
+}
+
+.intent.salt {
+  background: color-mix(in srgb, var(--salt) 22%, var(--deep));
+}
+
+.meter {
+  position: relative;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--abyss);
+  overflow: hidden;
+}
+
+.meter span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--blood);
+  transition: width 0.3s ease;
+}
+
+.you-meter span {
+  background: var(--moss);
+}
+
+.meter b {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px #000;
+}
+
+.status-line,
+.log {
+  margin: 0;
+  min-height: 1.3em;
+  font-size: 14px;
+  color: var(--mist);
+}
+
+.log {
+  color: var(--foam);
+}
+
+.preview {
+  margin: 0;
+  min-height: 2.6em;
+  text-align: center;
+  font-size: 15px;
+  color: var(--mist);
+  font-variant-numeric: tabular-nums;
+}
+
+.preview strong {
+  display: block;
+  font: 22px / 1.15 var(--display);
+  color: var(--foam);
+}
+
+#board {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  touch-action: none;
+}
+
+.player {
+  display: grid;
+  gap: 8px;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--kelp);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ward {
+  color: var(--moss);
+}
+
+.strokes {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--mist);
+  align-items: center;
+}
+
+.strokes i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--lamp);
+}
+
+.strokes i.spent {
+  background: var(--kelp);
+}
+
+.marks-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.marks-row li {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--kelp);
+  color: var(--lamp);
+  font-size: 13px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 16px;
+  margin: 0 0 16px;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats dt {
+  color: var(--mist);
+}
+
+.stats dd {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foe.hit {
+    animation: none;
+  }
+}

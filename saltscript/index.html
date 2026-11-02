@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0b161c" />
+    <title>Saltscript</title>
+    <link rel="icon" href="icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Alegreya+Sans:wght@400;500;700&display=swap"
+    />
+    <link rel="stylesheet" href="src/ui/style.css" />
+  </head>
+  <body>
+    <section id="title" class="screen center">
+      <p class="eyebrow">A roguelike of tides and ink</p>
+      <h1 class="logo">Saltscript</h1>
+      <p class="lede">The tide is unwriting the coast. You are the last scribe of the lighthouse. Write it back.</p>
+      <button type="button" id="continue" class="primary" hidden>Continue the night</button>
+      <button type="button" id="new-run" class="primary">Begin a new night</button>
+      <p class="how">Swipe across three or more touching runes to write a glyph. One ink makes a Seal. Brine and Ember wound, Ember burns, Moss wards.</p>
+    </section>
+
+    <section id="map" class="screen" hidden>
+      <header class="bar" id="map-bar"></header>
+      <h2 class="screen-title">The Coast Road</h2>
+      <ol id="floors" class="floors"></ol>
+      <details class="inkwell">
+        <summary>Inkwell and marginalia</summary>
+        <div id="inkwell"></div>
+      </details>
+    </section>
+
+    <section id="combat" class="screen" hidden>
+      <article id="foe" class="foe">
+        <div class="foe-head">
+          <h2 id="foe-name">Foe</h2>
+          <span id="intent" class="intent"></span>
+        </div>
+        <div class="meter foe-meter"><span id="foe-hp-fill"></span><b id="foe-hp"></b></div>
+        <p id="foe-status" class="status-line"></p>
+        <p id="log" class="log" aria-live="polite"></p>
+      </article>
+      <p id="preview" class="preview">Trace three or more touching runes</p>
+      <canvas id="board" aria-label="Rune board"></canvas>
+      <footer class="player">
+        <div class="meter you-meter"><span id="you-hp-fill"></span><b id="you-hp"></b></div>
+        <div class="player-row">
+          <span id="ward" class="pill ward"></span>
+          <span id="strokes" class="strokes"></span>
+          <button type="button" id="end-turn" class="secondary small">End turn</button>
+        </div>
+        <ul id="marks-row" class="marks-row"></ul>
+      </footer>
+    </section>
+
+    <section id="reward" class="screen" hidden>
+      <h2 class="screen-title">The ink settles</h2>
+      <p id="reward-gold" class="lede"></p>
+      <div id="reward-marks" class="choices"></div>
+      <p class="label">Add one rune to your inkwell</p>
+      <div id="reward-runes" class="choices"></div>
+      <button type="button" id="reward-skip" class="ghost">Take nothing</button>
+    </section>
+
+    <section id="market" class="screen" hidden>
+      <header class="bar" id="market-bar"></header>
+      <h2 class="screen-title">The Wrack Market</h2>
+      <p class="label">Runes</p>
+      <div id="market-runes" class="choices"></div>
+      <p class="label">Marginalia</p>
+      <div id="market-marks" class="choices"></div>
+      <p class="label" id="remove-label"></p>
+      <div id="market-remove" class="bag"></div>
+      <button type="button" id="market-leave" class="primary">Back to the road</button>
+    </section>
+
+    <section id="rest" class="screen" hidden>
+      <h2 class="screen-title">A dry cave</h2>
+      <p class="lede">Rest your hand, or recut one rune deeper.</p>
+      <button type="button" id="rest-heal" class="primary"></button>
+      <p class="label">Upgrade one rune</p>
+      <div id="rest-runes" class="choices"></div>
+    </section>
+
+    <section id="shrine" class="screen" hidden>
+      <h2 id="shrine-name" class="screen-title">Shrine</h2>
+      <p id="shrine-text" class="lede"></p>
+      <div id="shrine-options" class="stack"></div>
+    </section>
+
+    <section id="end" class="screen center" hidden>
+      <h2 id="end-title" class="logo small">The night ends</h2>
+      <p id="end-text" class="lede"></p>
+      <dl id="end-stats" class="stats"></dl>
+      <button type="button" id="end-new" class="primary">Begin a new night</button>
+    </section>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
