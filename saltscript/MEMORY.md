@@ -19,3 +19,4 @@ Rewritten by each run; keep it short.
 - `src/ui/sound.js` is synthesized WebAudio; a new event kind needs an entry in `eventSounds` and the test in `test/sound.test.js` enforces it for foe intents
 - Acts live in `acts` in `data.js`; `run.actIndex` selects pools; a boss win calls `nextAct` then goes to `reward`; bands are about act 1 (`firstActRate`), a full bot run takes about 2 s
 - Marginalia have `rarity`; `freshMarks` rolls by `rarityWeights`; `readGlyph(runes, marks, bagSize)` and `combat.bagSize` serve bag builds; bots never take marginalia from rewards
+- Shrines: text and options in `data.js`, effects by option index in `shrineEffects` in `run.js`; an option without an effect walks away; `run.freeStep` lets `reachable` open every lane once

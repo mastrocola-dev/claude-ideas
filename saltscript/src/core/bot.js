@@ -1,5 +1,5 @@
 import { adjacent, canWrite, intentOf, readGlyph } from './combat.js'
-import { acts } from './data.js'
+import { acts, shrines } from './data.js'
 import { rng } from './rng.js'
 import { act, createRun, reachable } from './run.js'
 
@@ -45,7 +45,7 @@ const decide = (run, rand) => {
   if (run.screen === 'map') return { type: 'choose', lane: rand.pick(reachable(run)) }
   if (run.screen === 'reward') return { type: 'takeRune', index: rand.int(run.offer.runes.length) }
   if (run.screen === 'rest') return { type: 'heal' }
-  if (run.screen === 'shrine') return { type: 'shrine', option: rand.int(2) }
+  if (run.screen === 'shrine') return { type: 'shrine', option: rand.int(shrines[run.offer.shrine].options.length) }
   return { type: 'leave' }
 }
 

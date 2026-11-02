@@ -71,6 +71,7 @@ const freshMarks = (rand, run, count) => {
 export const runePrice = rune => 14 + rune.value * 10
 export const markPrice = 70
 export const removePrice = 45
+export const minBag = 12
 
 export const createRun = seed => {
   const rand = rng(seed)
@@ -82,6 +83,7 @@ export const createRun = seed => {
     floor: -1,
     lane: null,
     trail: [],
+    freeStep: false,
     hp: 70,
     maxHp: 70,
     gold: 30,
@@ -98,6 +100,7 @@ export const createRun = seed => {
 export const reachable = run => {
   if (run.floor === -1) return run.map[0].map(node => node.lane)
   if (run.floor === floors - 1) return []
+  if (run.freeStep) return run.map[run.floor + 1].map(node => node.lane)
   return run.map[run.floor].find(node => node.lane === run.lane).links
 }
 
@@ -116,7 +119,7 @@ const enter = (run, lane) => {
   const floor = run.floor + 1
   const node = nodeAt(run, floor, lane)
   const rand = rng(run.seed)
-  const at = { ...run, floor, lane, trail: [...run.trail, lane] }
+  const at = { ...run, floor, lane, trail: [...run.trail, lane], freeStep: false }
   if (['fight', 'elite', 'boss'].includes(node.kind)) {
     const combat = createCombat({
       bag: run.bag,
@@ -175,22 +178,74 @@ const finishCombat = run => {
   }
 }
 
+const shrineEffects = {
+  lectern: [
+    (run, rand) => {
+      const [mark] = freshMarks(rand, run, 1)
+      return { ...run, hp: Math.max(1, run.hp - 8), marks: mark ? [...run.marks, mark] : run.marks }
+    },
+  ],
+  tidepool: [
+    (run, rand) => {
+      const raisable = rand.shuffle(run.bag.filter(r => r.value < 4))
+      return {
+        ...run,
+        bag: upgrade(
+          run.bag,
+          raisable.slice(0, 2).map(r => r.id),
+        ),
+      }
+    },
+  ],
+  confessor: [run => ({ ...run, gold: run.gold + 40, maxHp: run.maxHp - 5, hp: Math.min(run.hp, run.maxHp - 5) })],
+  inkLeech: [
+    run => {
+      const room = Math.max(0, Math.min(2, run.bag.length - minBag))
+      const weakest = [...run.bag]
+        .sort((a, b) => a.value - b.value)
+        .slice(0, room)
+        .map(r => r.id)
+      return { ...run, bag: run.bag.filter(r => !weakest.includes(r.id)), maxHp: run.maxHp + 10, hp: run.hp + 10 }
+    },
+  ],
+  tideBell: [
+    (run, rand) => {
+      const target = rand.pick(run.bag.filter(r => r.value < 4))
+      return { ...run, hp: Math.max(1, run.hp - 12), bag: upgrade(upgrade(run.bag, [target?.id]), [target?.id]) }
+    },
+    (run, rand) => {
+      const lost = rand.pick(run.bag)
+      return { ...run, gold: run.gold + 25, bag: run.bag.filter(r => r !== lost) }
+    },
+  ],
+  mapmaker: [
+    run => ({ ...run, hp: Math.max(1, run.hp - 6), freeStep: true }),
+    (run, rand) => {
+      const rune = { id: `r${run.nextId}`, ink: rand.pick(writable), value: 3 }
+      return { ...run, hp: Math.max(1, run.hp - 10), bag: [...run.bag, rune], nextId: run.nextId + 1 }
+    },
+  ],
+  lamp: [
+    (run, rand) => {
+      if (!run.marks.length) return run
+      const lost = rand.pick(run.marks)
+      const maxHp = run.maxHp + 10
+      return { ...run, marks: run.marks.filter(key => key !== lost), maxHp, hp: maxHp }
+    },
+    (run, rand) => {
+      const open = Object.keys(marginalia).filter(key => marginalia[key].rarity === 'rare' && !run.marks.includes(key))
+      const maxHp = run.maxHp - 12
+      const hp = Math.min(run.hp, maxHp)
+      return { ...run, maxHp, hp, marks: open.length ? [...run.marks, rand.pick(open)] : run.marks }
+    },
+  ],
+}
+
 const shrineEffect = (run, option) => {
-  if (option !== 0) return toMap(run)
+  const effect = shrineEffects[run.offer.shrine][option]
+  if (!effect) return toMap(run)
   const rand = rng(run.seed)
-  const done = next => toMap({ ...next, seed: rand.state() })
-  if (run.offer.shrine === 'lectern') {
-    const [mark] = freshMarks(rand, run, 1)
-    return done({ ...run, hp: Math.max(1, run.hp - 8), marks: mark ? [...run.marks, mark] : run.marks })
-  }
-  if (run.offer.shrine === 'tidepool') {
-    const ids = rand
-      .shuffle(run.bag.filter(r => r.value < 4))
-      .slice(0, 2)
-      .map(r => r.id)
-    return done({ ...run, bag: upgrade(run.bag, ids) })
-  }
-  return done({ ...run, gold: run.gold + 40, maxHp: run.maxHp - 5, hp: Math.min(run.hp, run.maxHp - 5) })
+  return toMap({ ...effect(run, rand), seed: rand.state() })
 }
 
 const actions = {
@@ -226,7 +281,7 @@ const actions = {
     return { ...run, gold: run.gold - markPrice, marks: [...run.marks, key], offer: { ...run.offer, marks } }
   },
   remove: (run, { id }) => {
-    if (run.screen !== 'market' || run.offer.removed || run.gold < removePrice || run.bag.length <= 12) return run
+    if (run.screen !== 'market' || run.offer.removed || run.gold < removePrice || run.bag.length <= minBag) return run
     if (!run.bag.some(r => r.id === id)) return run
     const bag = run.bag.filter(r => r.id !== id)
     return { ...run, gold: run.gold - removePrice, bag, offer: { ...run.offer, removed: true } }

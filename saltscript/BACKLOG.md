@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S08 More shrines
-
-Four more shrines with real trade-offs in the world's voice (for example the Ink Leech, the Tide Bell, the Mapmaker's Corpse, the Lamp That Asks). Done when each option has a test.
-
 ### S09 Meta progression
 
 Lamplight earned per run (floors cleared plus bosses). Spending it unlocks marginalia into the pools and a second scribe, the Ember Novice (bag tilted to Ember, starts with Ember Psalm). Title screen shows the unlocks; progress stored separately from the run. Done when unlocks persist and change new runs (tests and e2e).
@@ -47,6 +43,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S05 Balance harness: human-like policy, `npm run balance`, boss and elite tuned, bands pinned by test (2026-11-02)
 - S06 Acts two and three: Sunken Nave and Lighthouse, smudge and undertow, bosses offer marginalia, half heal between acts (2026-11-02)
 - S07 More marginalia: eight new with rarities, rolled by weight in rewards and market (2026-11-02)
+- S08 More shrines: Ink Leech, Tide Bell, Mapmaker's Corpse, Lamp That Asks; effects moved to a table (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

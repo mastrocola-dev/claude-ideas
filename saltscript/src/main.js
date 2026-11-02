@@ -1,7 +1,7 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { acts, inks, marginalia, shrines } from './core/data.js'
-import { act, createRun, markPrice, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
+import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
 import { drawRoutes } from './ui/routes.js'
@@ -253,7 +253,7 @@ const renderMarket = () => {
       return button
     }),
   )
-  const canRemove = !offer.removed && run.gold >= removePrice && run.bag.length > 12
+  const canRemove = !offer.removed && run.gold >= removePrice && run.bag.length > minBag
   $('remove-label').textContent = offer.removed
     ? 'The scraper is worn for tonight'
     : `Scrape a rune from your inkwell · ${removePrice} gold`

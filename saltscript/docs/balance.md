@@ -4,5 +4,5 @@
 
 | Policy     | Act 1 cleared | Full run won | Mean acts cleared | Turns per fight |
 | ---------- | ------------- | ------------ | ----------------- | --------------- |
-| exhaustive | 100%          | 36%          | 2.2               | 4.5             |
-| human      | 54%           | 2%           | 0.6               | 5.3             |
+| exhaustive | 100%          | 34%          | 2.2               | 4.5             |
+| human      | 54%           | 2%           | 0.6               | 5.2             |

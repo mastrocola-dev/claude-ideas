@@ -262,4 +262,36 @@ export const shrines = {
     text: 'A hooded figure in a salt-crusted booth trades coin for secrets.',
     options: ['Confess: gain 40 gold, lose 5 max health', 'Keep silent'],
   },
+  inkLeech: {
+    name: 'The Ink Leech',
+    text: 'A fat leech sleeps in a bowl of black ink. It wakes when it smells yours.',
+    options: ['Feed it: lose your 2 weakest runes, gain 10 max health', 'Cover the bowl'],
+  },
+  tideBell: {
+    name: 'The Tide Bell',
+    text: 'A green bell hangs from a drowned post. The sea listens when it rings.',
+    options: [
+      'Ring it: raise a random rune by two, lose 12 health',
+      'Muffle it: gain 25 gold, lose a random rune',
+      'Let it hang',
+    ],
+  },
+  mapmaker: {
+    name: "The Mapmaker's Corpse",
+    text: 'He died mid-stride, chart in one hand, satchel in the other. The ink is still wet.',
+    options: [
+      'Follow his chart: lose 6 health, your next step may be any node ahead',
+      'Rifle the satchel: lose 10 health, gain a rune worth III',
+      'Close his eyes',
+    ],
+  },
+  lamp: {
+    name: 'The Lamp That Asks',
+    text: 'A small lamp burns without oil. It asks for a name, and it does not ask twice.',
+    options: [
+      'Give it a marginalia: lose a random one, heal fully and gain 10 max health',
+      'Give it your own: lose 12 max health, gain a rare marginalia',
+      'Say nothing',
+    ],
+  },
 }
