@@ -5,7 +5,7 @@
 <p>
   <img src="docs/screenshots/title.png" alt="Title screen" width="220" />
   <img src="docs/screenshots/map.png" alt="The Coast Road map with branching floors" width="220" />
-  <img src="docs/screenshots/combat.png" alt="A fight: a six-rune Litany of Brine swiped across the page" width="220" />
+  <img src="docs/screenshots/combat.png" alt="A fight: a five-rune Verse swiped across the page" width="220" />
   <img src="docs/screenshots/reward.png" alt="Reward screen offering three runes" width="220" />
 </p>
 
