@@ -5,7 +5,7 @@ const key = 'saltscript.run'
 export const loadRun = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(key))
-    return saved && { trail: [], actIndex: 0, locked: [], ...saved }
+    return saved && { trail: [], actIndex: 0, locked: [], ...saved, stats: { inks: [], ...saved.stats } }
   } catch {
     return null
   }

@@ -97,7 +97,7 @@ export const createRun = (seed, { scribe = 'lastScribe', unlocked = [] } = {}) =
     screen: 'map',
     combat: null,
     offer: null,
-    stats: { fights: 0, strokes: 0, best: null },
+    stats: { fights: 0, strokes: 0, best: null, inks: [] },
   }
 }
 
@@ -164,7 +164,7 @@ const nextAct = (run, rand) => ({
 const finishCombat = run => {
   const { combat } = run
   const best = (combat.best?.damage ?? -1) > (run.stats.best?.damage ?? -1) ? combat.best : run.stats.best
-  const stats = { fights: run.stats.fights + 1, strokes: run.stats.strokes + combat.written, best }
+  const stats = { ...run.stats, fights: run.stats.fights + 1, strokes: run.stats.strokes + combat.written, best }
   if (combat.status === 'lost') return { ...run, hp: 0, stats, screen: 'defeat' }
   const after = { ...run, hp: combat.hp, stats }
   if (run.offer.kind === 'boss' && run.actIndex === acts.length - 1) return { ...after, screen: 'victory' }
@@ -259,7 +259,10 @@ const actions = {
   write: (run, { path }) => {
     if (run.screen !== 'combat') return run
     const combat = write(run.combat, path)
-    return combat.status === 'playing' ? { ...run, combat } : finishCombat({ ...run, combat })
+    if (combat === run.combat) return run
+    const stats = { ...run.stats, inks: [...run.stats.inks, combat.last.ink ?? 'mixed'] }
+    const next = { ...run, combat, stats }
+    return combat.status === 'playing' ? next : finishCombat(next)
   },
   endTurn: run => {
     if (run.screen !== 'combat') return run

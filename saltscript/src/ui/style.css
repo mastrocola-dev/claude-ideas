@@ -339,6 +339,7 @@ button.rune {
 }
 
 .choice .price {
+  white-space: nowrap;
   margin-left: auto;
   color: var(--lamp);
   font-weight: 700;
@@ -671,8 +672,4 @@ button.rune {
   display: grid;
   gap: 8px;
   text-align: left;
-}
-
-.price {
-  white-space: nowrap;
 }

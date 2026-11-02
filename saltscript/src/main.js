@@ -1,5 +1,6 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
+import { canStartDaily, createDailyRun, dateKey, recordDaily, shareText, startDaily } from './core/daily.js'
 import { acts, inks, marginalia, scribes, shrines, unlockCosts } from './core/data.js'
 import { bank, chooseScribe, lamplightEarned, runOptions, spend } from './core/meta.js'
 import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
@@ -16,7 +17,7 @@ const labels = { fight: 'Fight', elite: 'Elite', shrine: 'Shrine', market: 'Mark
 const board = createBoard($('board'))
 
 let run = loadRun()
-let meta = run ? saveMeta(bank(loadMeta(), run)) : loadMeta()
+let meta = run ? saveMeta(recordDaily(bank(loadMeta(), run), run)) : loadMeta()
 let path = []
 let foeTimer = null
 const foePause = 600
@@ -148,9 +149,40 @@ const beginRun = () => {
   render()
 }
 
+const beginDaily = () => {
+  const date = dateKey(new Date())
+  if (!canStartDaily(meta, date)) return
+  meta = saveMeta(startDaily(meta, date))
+  run = saveRun(createDailyRun(date))
+  render()
+}
+
+const share = async (button, text) => {
+  try {
+    if (navigator.share) await navigator.share({ text })
+    else {
+      await navigator.clipboard.writeText(text)
+      button.textContent = 'Copied'
+    }
+  } catch {}
+}
+
+const renderShare = (button, record) => {
+  button.hidden = !record?.result
+  if (record?.result) button.onclick = () => share(button, shareText(record.date, record.result))
+}
+
+const renderDaily = () => {
+  const date = dateKey(new Date())
+  $('daily').disabled = !canStartDaily(meta, date)
+  $('daily').textContent = canStartDaily(meta, date) ? 'Face the Daily Tide' : "Today's Tide is written"
+  renderShare($('daily-share'), meta.daily?.date === date ? meta.daily : null)
+}
+
 const renderTitle = () => {
   renderMute()
   renderLamplight()
+  renderDaily()
   $('continue').hidden = !run || ['victory', 'defeat'].includes(run.screen)
   show('title')
 }
@@ -370,7 +402,8 @@ const renderEnd = () => {
     ? 'The lamp is lit again. The names of the coast hold until the next night.'
     : `The sea took you in ${acts[run.actIndex].name}, floor ${run.floor + 1}.`
   const best = run.stats.best
-  meta = saveMeta(bank(meta, run))
+  meta = saveMeta(recordDaily(bank(meta, run), run))
+  renderShare($('end-share'), meta.daily?.date === run.daily ? meta.daily : null)
   $('end-stats').replaceChildren(
     el('dt', {}, 'Fights won'),
     el('dd', {}, `${run.stats.fights - (won ? 0 : 1)}`),
@@ -441,6 +474,7 @@ $('mute').onclick = () => {
   renderMute()
 }
 $('new-run').onclick = beginRun
+$('daily').onclick = beginDaily
 $('continue').onclick = () => render()
 $('end-new').onclick = beginRun
 $('end-title-screen').onclick = renderTitle

@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S10 Daily Tide
-
-A run seeded from the UTC date, one recorded attempt per day, share text (date, floor reached, greatest glyph, a row of ink glyphs) via `navigator.share` with clipboard fallback. Done when two runs on the same date have the same map and the share format is tested.
-
 ### S11 Codex and first-fight guidance
 
 A codex sheet reachable from map and combat: glyph tiers table, inks, intents, current marginalia. The first fight of the first run shows three one-line hints in sequence. Done when the hints appear once and the codex opens from both screens (e2e).
@@ -30,6 +26,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - Salt runes vanish when written through with Saltwise instead of returning to the bag
 - Balance bands rest on bots, not people: the human-like policy never writes past 4 runes, so the Tide and Choirmother were cut to 125 and 110 base health; real players reaching 5-rune Verses may find act 1 easy
 - Lamplight costs (15, 30, 40) and earnings (1 per floor, 10 per boss) are a first guess; unlocks are not yet in the balance harness
+- Daily runs ignore unlocks and scribes so scores compare; starting another run mid-Tide forfeits that day's record
 
 ## Done
 
@@ -42,6 +39,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S07 More marginalia: eight new with rarities, rolled by weight in rewards and market (2026-11-02)
 - S08 More shrines: Ink Leech, Tide Bell, Mapmaker's Corpse, Lamp That Asks; effects moved to a table (2026-11-02)
 - S09 Meta progression: Lamplight banked per run, unlockable marginalia and the Ember Novice on the title (2026-11-02)
+- S10 Daily Tide: UTC-seeded run, one attempt per date, share text with ink row (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

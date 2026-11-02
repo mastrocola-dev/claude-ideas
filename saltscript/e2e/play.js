@@ -106,6 +106,12 @@ try {
   assert.match(await page.textContent('#lamplight'), /Lamplight 60/)
   await page.click('#new-run')
   assert.deepEqual(await page.evaluate(() => window.saltscript.run().marks), ['emberPsalm'])
+  await page.reload()
+  await page.click('#daily')
+  const today = new Date().toISOString().slice(0, 10)
+  assert.equal(await page.evaluate(() => window.saltscript.run().daily), today)
+  await page.reload()
+  assert.equal(await page.locator('#daily').isDisabled(), true)
   assert.deepEqual(errors, [])
   console.log('e2e passed: first fight won by real swipes, reward taken, run continued after reload')
 } finally {
