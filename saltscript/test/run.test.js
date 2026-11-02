@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { bestPath } from '../src/core/bot.js'
-import { act, createRun, floors, nodeAt, reachable } from '../src/core/run.js'
+import { act, createRun, floors, nodeAt, openLanes, reachable } from '../src/core/run.js'
 
 const autoplay = seed => {
   let run = createRun(seed)
@@ -37,6 +37,20 @@ test('only linked nodes can be chosen', () => {
   run = { ...run, screen: 'map', combat: null }
   const blocked = [0, 1, 2].find(lane => !reachable(run).includes(lane))
   if (blocked !== undefined) assert.equal(act(run, { type: 'choose', lane: blocked }), run)
+})
+
+test('the trail records each step and open lanes follow the links ahead', () => {
+  const start = createRun(7)
+  assert.deepEqual(start.trail, [])
+  assert.deepEqual(openLanes(start)[0], [0, 1, 2])
+  const run = { ...act(start, { type: 'choose', lane: 0 }), screen: 'map', combat: null }
+  assert.deepEqual(run.trail, [0])
+  const open = openLanes(run)
+  assert.deepEqual(open[0], [])
+  assert.deepEqual(open[1], nodeAt(run, 0, 0).links)
+  const expected = [...new Set(open[1].flatMap(lane => nodeAt(run, 1, lane).links))]
+  assert.deepEqual(open[2], expected)
+  assert.deepEqual(open[floors - 1], [1])
 })
 
 test('rewards add a rune to the bag and return to the map', () => {

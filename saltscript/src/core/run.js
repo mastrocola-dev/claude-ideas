@@ -70,6 +70,7 @@ export const createRun = seed => {
     map: createMap(rand),
     floor: -1,
     lane: null,
+    trail: [],
     hp: 70,
     maxHp: 70,
     gold: 30,
@@ -89,13 +90,22 @@ export const reachable = run => {
   return run.map[run.floor].find(node => node.lane === run.lane).links
 }
 
+export const openLanes = run => {
+  const open = run.map.map(() => [])
+  open[run.floor + 1] = reachable(run)
+  for (let floor = run.floor + 1; floor < floors - 1; floor++) {
+    open[floor + 1] = [...new Set(open[floor].flatMap(lane => nodeAt(run, floor, lane).links))]
+  }
+  return open
+}
+
 export const nodeAt = (run, floor, lane) => run.map[floor]?.find(node => node.lane === lane)
 
 const enter = (run, lane) => {
   const floor = run.floor + 1
   const node = nodeAt(run, floor, lane)
   const rand = rng(run.seed)
-  const at = { ...run, floor, lane }
+  const at = { ...run, floor, lane, trail: [...run.trail, lane] }
   if (['fight', 'elite', 'boss'].includes(node.kind)) {
     const combat = createCombat({
       bag: run.bag,

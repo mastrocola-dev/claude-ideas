@@ -33,6 +33,10 @@ try {
   await page.screenshot({ path: `${shots}title.png` })
   await page.click('#new-run')
   await page.screenshot({ path: `${shots}map.png` })
+  const firstFloorLinks = await page.evaluate(() =>
+    window.saltscript.run().map[0].reduce((sum, node) => sum + node.links.length, 0),
+  )
+  assert.equal(await page.locator('#links line[data-floor="0"]').count(), firstFloorLinks)
   await page.click('.node.open >> nth=0')
   assert.equal(await screen(), 'combat')
   let shot = false
@@ -66,6 +70,8 @@ try {
   await page.click('#continue')
   assert.equal(await page.locator('#map').isVisible(), true)
   assert.ok((await page.locator('.node.open').count()) >= 1)
+  assert.ok((await page.locator('#links line.walked, .node.lost').count()) >= 1)
+  await page.screenshot({ path: `${shots}map-walked.png` })
   assert.deepEqual(errors, [])
   console.log('e2e passed: first fight won by real swipes, reward taken, run continued after reload')
 } finally {

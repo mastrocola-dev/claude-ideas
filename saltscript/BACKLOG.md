@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S02 Map routes
-
-Draw the links between floors on the map (an SVG layer behind the node grid) so a route can be planned; mark the trail already walked and dim nodes that can no longer be reached. Done when e2e asserts the link count of floor 1 and the screenshot shows the lines.
-
 ### S03 Combat feel
 
 Floating numbers over the foe (wound, burn) and the player (damage, ward); the glyph name flourishes on write; the foe turn resolves 600 ms after the last stroke so the player sees its intent land; salt cracks in visibly. Respect `prefers-reduced-motion`. Done when every combat event has visible feedback and e2e still wins the first fight.
@@ -65,6 +61,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 ## Done
 
 - S01 Playable MVP: map, fights, glyph scoring, rewards, market, rest, shrines, boss, saved runs, e2e (2026-11-02, built in the conversation)
+- S02 Map routes: SVG links behind the nodes, walked trail, unreachable nodes dimmed (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

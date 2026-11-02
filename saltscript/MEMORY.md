@@ -11,3 +11,5 @@ Rewritten by each run; keep it short.
 - Chromium at `/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` (override with `CHROMIUM`); `playwright-core` only
 - Biome formats Markdown too; run `npm run fix` before committing
 - Fetch `poc` with `git fetch origin +refs/heads/poc:refs/remotes/origin/poc` before `git checkout -B poc origin/poc`
+- `run.trail` lists the lane chosen per floor; `openLanes(run)` gives lanes still reachable per floor; `drawRoutes` in `src/ui/routes.js` measures node rects after `show('map')`
+- `add_repo` may be missing from the tools; the session's clone already fetches and pushes

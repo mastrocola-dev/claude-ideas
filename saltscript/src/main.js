@@ -1,8 +1,9 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { inks, marginalia, shrines } from './core/data.js'
-import { act, createRun, markPrice, nodeAt, reachable, removePrice, runePrice } from './core/run.js'
+import { act, createRun, markPrice, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
+import { drawRoutes } from './ui/routes.js'
 import { loadRun, saveRun } from './ui/store.js'
 
 const $ = id => document.getElementById(id)
@@ -67,7 +68,7 @@ const renderTitle = () => {
 
 const renderMap = () => {
   statsBar($('map-bar'))
-  const open = reachable(run)
+  const open = openLanes(run)
   $('floors').replaceChildren(
     ...run.map.map((nodes, floor) =>
       el(
@@ -75,12 +76,14 @@ const renderMap = () => {
         { className: 'floor' },
         ...nodes.map(node => {
           const here = floor === run.floor && node.lane === run.lane
-          const can = floor === run.floor + 1 && open.includes(node.lane)
-          return el(
+          const can = floor === run.floor + 1 && open[floor].includes(node.lane)
+          const walked = run.trail[floor] === node.lane
+          const lost = !walked && !open[floor].includes(node.lane)
+          const button = el(
             'button',
             {
               type: 'button',
-              className: `node ${node.kind}${can ? ' open' : ''}${here ? ' here' : ''}`,
+              className: `node ${node.kind}${can ? ' open' : ''}${here ? ' here' : ''}${lost ? ' lost' : ''}`,
               disabled: !can,
               ariaLabel: `${labels[node.kind]}, floor ${floor + 1}`,
               onclick: () => dispatch({ type: 'choose', lane: node.lane }),
@@ -88,6 +91,8 @@ const renderMap = () => {
             el('span', { className: 'sym' }, symbols[node.kind]),
             labels[node.kind],
           )
+          button.dataset.lane = node.lane
+          return button
         }),
       ),
     ),
@@ -99,6 +104,7 @@ const renderMap = () => {
       : [el('p', {}, 'No marginalia yet. Elites, shrines and the market grant them.')]),
   )
   show('map')
+  drawRoutes($('links'), $('floors'), run)
 }
 
 const intentText = intent =>
@@ -327,6 +333,10 @@ canvas.addEventListener('pointerup', () => {
   }
   path = []
   if (run?.combat) renderPreview(run.combat)
+})
+
+window.addEventListener('resize', () => {
+  if (run?.screen === 'map') drawRoutes($('links'), $('floors'), run)
 })
 
 $('new-run').onclick = () => {
