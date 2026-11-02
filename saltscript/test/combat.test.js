@@ -42,8 +42,13 @@ test('writing damages the enemy, refills the board and spends a stroke', () => {
   assert.equal(next.cells.filter(Boolean).length, width * height)
 })
 
-test('the enemy acts after the last stroke and the turn passes', () => {
-  const combat = write(write(fight(), [0, 1, 2]), [0, 1, 2])
+test('the enemy acts on end turn once the strokes are spent', () => {
+  const spent = write(write(fight(), [0, 1, 2]), [0, 1, 2])
+  assert.equal(spent.turn, 1)
+  assert.equal(spent.strokes, 0)
+  assert.equal(spent.hp, 50)
+  assert.equal(write(spent, [0, 1, 2]), spent)
+  const combat = endTurn(spent)
   assert.equal(combat.turn, 2)
   assert.equal(combat.strokes, 2)
   assert.ok(combat.hp < 50)
@@ -66,4 +71,11 @@ test('salt clogs the board and crumbles after three turns', () => {
 test('the player loses at zero health', () => {
   const combat = endTurn({ ...fight(), hp: 3 })
   assert.equal(combat.status, 'lost')
+})
+
+test('a killing burn leaves the foe at zero', () => {
+  const combat = endTurn({ ...fight(), enemy: { ...fight().enemy, hp: 2, burn: 5 } })
+  assert.equal(combat.status, 'won')
+  assert.equal(combat.enemy.hp, 0)
+  assert.equal(combat.events[0].kind, 'burn')
 })

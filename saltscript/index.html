@@ -45,10 +45,12 @@
         <div class="meter foe-meter"><span id="foe-hp-fill"></span><b id="foe-hp"></b></div>
         <p id="foe-status" class="status-line"></p>
         <p id="log" class="log" aria-live="polite"></p>
+        <div class="floats" aria-hidden="true"></div>
       </article>
       <p id="preview" class="preview">Trace three or more touching runes</p>
       <canvas id="board" aria-label="Rune board"></canvas>
-      <footer class="player">
+      <footer id="you" class="player">
+        <div class="floats" aria-hidden="true"></div>
         <div class="meter you-meter"><span id="you-hp-fill"></span><b id="you-hp"></b></div>
         <div class="player-row">
           <span id="ward" class="pill ward"></span>

@@ -565,3 +565,103 @@ button.rune {
     animation: none;
   }
 }
+
+.foe,
+.player {
+  position: relative;
+}
+
+.player.hit {
+  animation: hit 0.35s ease-out;
+}
+
+.floats {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.foe .floats {
+  bottom: 10px;
+}
+
+.player .floats {
+  bottom: 100%;
+}
+
+.float {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgb(11 22 28 / 0.92);
+  font-weight: 700;
+  font-size: 16px;
+  white-space: nowrap;
+  animation: float-away 0.9s ease-out forwards;
+}
+
+.float.wound {
+  color: var(--foam);
+}
+
+.float.burn {
+  color: #e8793f;
+}
+
+.float.ward {
+  color: #93b85c;
+}
+
+.float.salt {
+  color: #d9d3c4;
+}
+
+@keyframes float-away {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fade-away {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.flourish {
+  display: inline-block;
+  animation: flourish 0.5s ease-out;
+}
+
+@keyframes flourish {
+  from {
+    opacity: 0;
+    transform: scale(1.6) rotate(-3deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player.hit,
+  .flourish {
+    animation: none;
+  }
+
+  .float {
+    animation-name: fade-away;
+  }
+}

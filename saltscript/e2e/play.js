@@ -28,6 +28,12 @@ const swipe = async path => {
 
 const screen = () => page.evaluate(() => window.saltscript.run().screen)
 
+const foeSettled = () =>
+  page.waitForFunction(() => {
+    const run = window.saltscript.run()
+    return run.screen !== 'combat' || run.combat.strokes > 0
+  })
+
 try {
   await page.goto(`http://localhost:${port}/`)
   await page.screenshot({ path: `${shots}title.png` })
@@ -41,6 +47,8 @@ try {
   assert.equal(await screen(), 'combat')
   let shot = false
   for (let stroke = 0; stroke < 60 && (await screen()) === 'combat'; stroke++) {
+    await foeSettled()
+    if ((await screen()) !== 'combat') break
     const path = await page.evaluate(() => window.saltscript.hint())
     if (!path) {
       await page.click('#end-turn')
@@ -59,8 +67,14 @@ try {
       continue
     }
     await swipe(path)
+    if (stroke === 0) {
+      assert.ok((await page.locator('#foe .float, #you .float').count()) >= 1)
+      await page.screenshot({ path: `${shots}combat-feedback.png` })
+      assert.ok((await page.locator('#preview .flourish').count()) === 1)
+    }
   }
   assert.equal(await screen(), 'reward')
+  await page.waitForSelector('#reward:not([hidden])')
   await page.screenshot({ path: `${shots}reward.png` })
   const before = await page.evaluate(() => window.saltscript.run().bag.length)
   await page.click('#reward-runes button >> nth=0')

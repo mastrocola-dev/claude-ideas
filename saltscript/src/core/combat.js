@@ -127,7 +127,7 @@ const enemyAct = state => {
   const burnDamage = state.enemy.burn * (has(state, 'lampOil') ? 2 : 1)
   let enemy = { ...state.enemy, ward: 0, hp: state.enemy.hp - burnDamage, burn: Math.max(0, state.enemy.burn - 1) }
   const events = burnDamage ? [{ kind: 'burn', value: burnDamage }] : []
-  if (enemy.hp <= 0) return { ...state, enemy, status: 'won', events }
+  if (enemy.hp <= 0) return { ...state, enemy: { ...enemy, hp: 0 }, status: 'won', events }
   const intent = intentOf(state)
   let next = { ...state, enemy, events: [...events, intent] }
   const rand = rng(state.seed)
@@ -167,7 +167,7 @@ const enemyAct = state => {
 export const endTurn = state => (state.status === 'playing' ? enemyAct({ ...state, strokes: 0 }) : state)
 
 export const write = (state, path) => {
-  if (state.status !== 'playing' || !isValid(state, path)) return state
+  if (state.status !== 'playing' || !state.strokes || !isValid(state, path)) return state
   const runes = path.map(cell => state.cells[cell])
   const glyph = readGlyph(runes, state.marks)
   const enemy = hurt(state.enemy, glyph.damage)
@@ -186,8 +186,5 @@ export const write = (state, path) => {
     events: [{ kind: 'glyph', glyph }],
   }
   if (next.enemy.hp <= 0) return { ...next, enemy: { ...next.enemy, hp: 0 }, status: 'won' }
-  const refilled = draw(next)
-  if (refilled.strokes) return refilled
-  const after = enemyAct(refilled)
-  return { ...after, last: glyph, events: [...next.events, ...after.events] }
+  return draw(next)
 }

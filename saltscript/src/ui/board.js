@@ -1,11 +1,21 @@
 import { height, width } from '../core/combat.js'
 import { inks } from '../core/data.js'
 
+const crackDuration = 450
+
 export const numeral = value => ['0', 'I', 'II', 'III', 'IV'][value] ?? String(value)
 
 export const createBoard = canvas => {
   const ctx = canvas.getContext('2d')
   let box = { cell: 0, left: 0, top: 0 }
+  const saltSeen = new Map()
+  const stillMotion = matchMedia('(prefers-reduced-motion: reduce)')
+
+  const crackProgress = rune => {
+    if (stillMotion.matches) return 1
+    if (!saltSeen.has(rune.id)) saltSeen.set(rune.id, performance.now())
+    return Math.min(1, (performance.now() - saltSeen.get(rune.id)) / crackDuration)
+  }
 
   const measure = () => {
     const ratio = devicePixelRatio || 1
@@ -32,6 +42,14 @@ export const createBoard = canvas => {
       }
       ctx.closePath()
       ctx.fill()
+      ctx.stroke()
+      const reach = r * crackProgress(rune)
+      ctx.beginPath()
+      for (const k of [0, 2, 4]) {
+        const a = (Math.PI / 3) * k + Math.PI / 6
+        ctx.moveTo(x, y)
+        ctx.lineTo(x + Math.cos(a) * reach, y + Math.sin(a) * reach)
+      }
       ctx.stroke()
       ctx.fillStyle = 'rgb(217 211 196 / 0.85)'
       ctx.font = `${r * 0.6}px 'Alegreya Sans', system-ui, sans-serif`

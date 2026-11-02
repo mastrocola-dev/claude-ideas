@@ -3,6 +3,7 @@ import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { inks, marginalia, shrines } from './core/data.js'
 import { act, createRun, markPrice, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
+import { announce } from './ui/feedback.js'
 import { drawRoutes } from './ui/routes.js'
 import { loadRun, saveRun } from './ui/store.js'
 
@@ -14,6 +15,8 @@ const board = createBoard($('board'))
 
 let run = loadRun()
 let path = []
+let foeTimer = null
+const foePause = 600
 
 const el = (tag, props = {}, ...children) => {
   const node = Object.assign(document.createElement(tag), props)
@@ -56,9 +59,23 @@ const statsBar = target =>
   )
 
 const dispatch = action => {
+  const before = run
   run = saveRun(act(run, action))
   path = []
-  render()
+  if (before.screen !== 'combat' || before.combat === run.combat) return render()
+  renderCombat()
+  announce(before.combat, run.combat)
+  if (run.screen !== 'combat') setTimeout(render, foePause)
+}
+
+const canAct = () => run?.screen === 'combat' && run.combat.strokes > 0
+
+const queueFoe = () => {
+  if (foeTimer || run.screen !== 'combat' || run.combat.strokes) return
+  foeTimer = setTimeout(() => {
+    foeTimer = null
+    dispatch({ type: 'endTurn' })
+  }, foePause)
 }
 
 const renderTitle = () => {
@@ -177,8 +194,10 @@ const renderCombat = () => {
   $('marks-row').replaceChildren(
     ...combat.marks.map(key => el('li', { title: marginalia[key].text }, marginalia[key].name)),
   )
+  $('end-turn').disabled = !canAct()
   renderPreview(combat)
   show('combat')
+  queueFoe()
 }
 
 const renderReward = () => {
@@ -312,7 +331,7 @@ const extend = event => {
 }
 
 canvas.addEventListener('pointerdown', event => {
-  if (run?.screen !== 'combat') return
+  if (!canAct()) return
   canvas.setPointerCapture(event.pointerId)
   path = []
   extend(event)
@@ -322,17 +341,11 @@ canvas.addEventListener('pointermove', event => {
 })
 canvas.addEventListener('pointerup', () => {
   if (path.length && isValid(run.combat, path)) {
-    const before = run.combat.enemy.hp
     dispatch({ type: 'write', path })
-    if (run.combat && run.combat.enemy.hp < before) {
-      $('foe').classList.remove('hit')
-      void $('foe').offsetWidth
-      $('foe').classList.add('hit')
-    }
     return
   }
   path = []
-  if (run?.combat) renderPreview(run.combat)
+  if (canAct()) renderPreview(run.combat)
 })
 
 window.addEventListener('resize', () => {
@@ -354,7 +367,7 @@ $('market-leave').onclick = () => dispatch({ type: 'leave' })
 $('rest-heal').onclick = () => dispatch({ type: 'heal' })
 
 const frame = () => {
-  if (run?.screen === 'combat') board.draw(run.combat, path)
+  if (!$('combat').hidden) board.draw(run.combat, path)
   requestAnimationFrame(frame)
 }
 

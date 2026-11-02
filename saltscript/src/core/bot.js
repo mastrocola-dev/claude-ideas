@@ -7,6 +7,7 @@ const worth = (state, glyph, threat) => {
 }
 
 export const bestPath = (state, depth = 6) => {
+  if (!state.strokes) return null
   const intent = intentOf(state)
   const threat = intent.kind === 'attack' ? intent.value : 0
   const cells = state.cells.map((_, i) => i).filter(i => canWrite(state, i))
