@@ -1,8 +1,8 @@
 export const inks = {
-  brine: { name: 'Brine', color: '#4fa8c9', does: 'damage' },
-  ember: { name: 'Ember', color: '#e8793f', does: 'damage and burn' },
-  moss: { name: 'Moss', color: '#93b85c', does: 'ward' },
-  salt: { name: 'Salt', color: '#d9d3c4', does: 'nothing' },
+  brine: { name: 'Brine', color: '#4fa8c9', does: 'damage', mark: '≈' },
+  ember: { name: 'Ember', color: '#e8793f', does: 'damage and burn', mark: '▲' },
+  moss: { name: 'Moss', color: '#93b85c', does: 'ward', mark: '◆' },
+  salt: { name: 'Salt', color: '#d9d3c4', does: 'nothing', mark: '✕' },
 }
 
 export const writable = ['brine', 'ember', 'moss']

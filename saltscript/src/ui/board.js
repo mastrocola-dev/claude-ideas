@@ -82,7 +82,9 @@ export const createBoard = canvas => {
     ctx.font = `${r * 0.72}px 'IM Fell English SC', Georgia, serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(numeral(rune.value), x, y + r * 0.04)
+    ctx.fillText(numeral(rune.value), x, y - r * 0.12)
+    ctx.font = `${r * 0.42}px system-ui, sans-serif`
+    ctx.fillText(inks[rune.ink].mark, x, y + r * 0.45)
   }
 
   const draw = (combat, path) => {

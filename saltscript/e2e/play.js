@@ -3,6 +3,8 @@ import { spawn } from 'node:child_process'
 import { mkdirSync } from 'node:fs'
 import { chromium } from 'playwright-core'
 
+const axeScript = new URL('../node_modules/axe-core/axe.min.js', import.meta.url).pathname
+
 const port = 5181
 const shots = new URL('../docs/screenshots/', import.meta.url).pathname
 const server = spawn('node', ['scripts/serve.js'], { env: { ...process.env, PORT: String(port) }, stdio: 'ignore' })
@@ -24,6 +26,29 @@ const swipe = async path => {
   await page.mouse.down()
   for (const point of points.slice(1)) await page.mouse.move(...point, { steps: 4 })
   await page.mouse.up()
+}
+
+const audit = async name => {
+  await page.addScriptTag({ path: axeScript })
+  const { violations } = await page.evaluate(() => window.axe.run())
+  const blocking = violations.filter(({ impact }) => ['serious', 'critical'].includes(impact))
+  assert.deepEqual(
+    blocking.flatMap(({ id, nodes }) => nodes.map(node => `${name}: ${id} ${node.html}`)),
+    [],
+  )
+}
+
+const auditForced = async (name, changes) => {
+  await page.evaluate(next => window.saltscript.play({ ...window.saltscript.run(), ...next }), changes)
+  await audit(name)
+}
+
+const tapPath = async path => {
+  for (const cell of path) {
+    const point = await page.evaluate(c => window.saltscript.pointFor(c), cell)
+    await page.mouse.click(...point)
+  }
+  await page.click('#write')
 }
 
 const screen = () => page.evaluate(() => window.saltscript.run().screen)
@@ -131,8 +156,35 @@ try {
   assert.equal(await screen(), 'map')
   assert.equal((await page.locator('.node.open').count()) >= 1, true)
   await page.context().setOffline(false)
+  await audit('title offline')
+  await page.click('.node.open >> nth=0')
+  assert.equal(await screen(), 'combat')
+  await audit('combat')
+  await page.click('#combat-codex')
+  await audit('codex')
+  await page.click('#codex-close')
+  for (let stroke = 0; stroke < 60 && (await screen()) === 'combat'; stroke++) {
+    await foeSettled()
+    if ((await screen()) !== 'combat') break
+    const path = await page.evaluate(() => window.saltscript.hint())
+    if (path) await tapPath(path)
+    else if (await page.locator('#end-turn').isEnabled()) await page.click('#end-turn')
+  }
+  assert.equal(await screen(), 'reward')
+  await page.waitForSelector('#reward:not([hidden])')
+  await audit('reward')
+  const rune = { id: 'audit', ink: 'moss', value: 2 }
+  await auditForced('map', { screen: 'map', offer: null, combat: null, floor: -1 })
+  await auditForced('market', { screen: 'market', offer: { runes: [rune], marks: ['lampOil'] } })
+  await auditForced('rest', { screen: 'rest', offer: { upgrades: [] } })
+  await auditForced('shrine', { screen: 'shrine', offer: { shrine: 'lamp' } })
+  await auditForced('end', { screen: 'defeat' })
+  await page.click('#end-title-screen')
+  await audit('title')
   assert.deepEqual(errors, [])
-  console.log('e2e passed: first fight won by real swipes, reward taken, run continued after reload')
+  console.log(
+    'e2e passed: fights won by swipes and by taps, every screen audited, run continued after reload and offline',
+  )
 } finally {
   await browser.close()
   server.kill()

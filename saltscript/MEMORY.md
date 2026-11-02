@@ -24,3 +24,5 @@ Rewritten by each run; keep it short.
 - `src/core/daily.js`: `createDailyRun(date)` sets `run.daily`; `meta.daily` holds `{date, result}`; `run.stats.inks` records every written glyph's ink
 - `meta.hints` counts first-fight hints shown, advanced on each written stroke; the codex is a `<dialog>` filled on open
 - `sw.js` shell must list every `src/` file (`test/pwa.test.js` enforces); stale-while-revalidate, so a new deploy shows on the second load
+- Input: a press without a swipe is a tap that keeps the path, and `#write` replaces End turn once 3 runes are held; `window.saltscript.play(run)` forces any screen for e2e audits
+- Gate each commit on real exit codes, never a `tail` of `npm run check`: S11 and S12 went out with a lint error that way

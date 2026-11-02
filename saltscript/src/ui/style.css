@@ -733,3 +733,8 @@ button.rune {
 .codex .primary {
   width: 100%;
 }
+
+.you-meter b {
+  color: #0f1f28;
+  text-shadow: none;
+}

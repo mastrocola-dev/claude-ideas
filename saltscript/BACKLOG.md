@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S13 Accessibility
-
-axe in e2e on every screen with no serious or critical violations; a tap alternative to swiping (tap runes in order, then Write); each ink also has a shape mark inside the seal so colour is not the only cue. Done when e2e wins a fight using taps only.
-
 ### S14 Showcase
 
 `README.md` with pitch, how to play, how to run, screenshots of title, map, combat and reward; link to `docs/concept.md`. Update the table in the repository root README. Done when it renders on GitHub with the images.
@@ -34,6 +30,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S10 Daily Tide: UTC-seeded run, one attempt per date, share text with ink row (2026-11-02)
 - S11 Codex and first-fight guidance: codex dialog from map and combat, three hints once (2026-11-02)
 - S12 PWA: manifest, service worker with cached shell and fonts, offline play (2026-11-02)
+- S13 Accessibility: axe on every screen, tap and Write input, an ink shape on every rune (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

@@ -29,7 +29,11 @@ const el = (tag, props = {}, ...children) => {
 }
 
 const runeChip = (rune, props = {}) =>
-  el(props.onclick ? 'button' : 'span', { className: `rune ${rune.ink}`, ...props }, numeral(rune.value))
+  el(
+    props.onclick ? 'button' : 'span',
+    { className: `rune ${rune.ink}`, ...props },
+    `${inks[rune.ink].mark}${numeral(rune.value)}`,
+  )
 
 const runeText = rune => `${inks[rune.ink].name} ${numeral(rune.value)}`
 
@@ -256,7 +260,10 @@ const eventText = (combat, event) => {
 }
 
 const renderPreview = combat => {
-  if (path.length < 3) {
+  const ready = path.length >= 3
+  $('write').hidden = !ready
+  $('end-turn').hidden = ready
+  if (!ready) {
     $('preview').replaceChildren(
       path.length ? 'Keep going, three runes at least' : 'Trace three or more touching runes',
     )
@@ -453,35 +460,59 @@ const render = () => {
 
 const canvas = $('board')
 
+let pressed = false
+let swiped = false
+
 const extend = event => {
   const cell = board.cellAt(event.clientX, event.clientY)
-  if (cell === null) return
+  if (cell === null) return false
   if (cell === path.at(-2)) path = path.slice(0, -1)
   else if (canExtend(run.combat, path, cell)) {
     path = [...path, cell]
     scratch(path.length)
-  }
+  } else return false
   renderPreview(run.combat)
+  return true
+}
+
+const tap = event => {
+  const cell = board.cellAt(event.clientX, event.clientY)
+  if (cell === null) return
+  if (cell === path.at(-1)) {
+    path = path.slice(0, -1)
+    return renderPreview(run.combat)
+  }
+  if (extend(event) || !canExtend(run.combat, [], cell)) return
+  path = [cell]
+  scratch(1)
+  renderPreview(run.combat)
+}
+
+const writePath = () => {
+  if (!isValid(run.combat, path)) return
+  meta = saveMeta(hintSeen(meta))
+  dispatch({ type: 'write', path })
 }
 
 canvas.addEventListener('pointerdown', event => {
   if (!canAct()) return
   canvas.setPointerCapture(event.pointerId)
-  path = []
-  extend(event)
+  pressed = true
+  swiped = false
+  tap(event)
 })
 canvas.addEventListener('pointermove', event => {
-  if (path.length) extend(event)
+  if (pressed && path.length && extend(event)) swiped = true
 })
 canvas.addEventListener('pointerup', () => {
-  if (path.length && isValid(run.combat, path)) {
-    meta = saveMeta(hintSeen(meta))
-    dispatch({ type: 'write', path })
-    return
-  }
+  pressed = false
+  if (!swiped) return
+  if (canAct() && isValid(run.combat, path)) return writePath()
   path = []
   if (canAct()) renderPreview(run.combat)
 })
+
+$('write').onclick = writePath
 
 window.addEventListener('resize', () => {
   if (run?.screen === 'map') drawRoutes($('links'), $('floors'), run)
@@ -514,6 +545,10 @@ requestAnimationFrame(frame)
 navigator.serviceWorker?.register('sw.js')
 
 window.saltscript = {
+  play: next => {
+    run = next
+    render()
+  },
   run: () => run,
   hint: () => bestPath(run.combat, 5),
   pointFor: cell => board.pointFor(cell),
