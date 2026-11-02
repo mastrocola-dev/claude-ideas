@@ -35,6 +35,9 @@ Rewritten by each run; keep it short.
 - A new string or content key needs `src/ui/locales/en.js` and `pt.js` (or a `pt` overlay for `data.js` content); `test/i18n.test.js` enforces both and matching placeholders
 - `src/ui/music.js` is generative WebAudio (filtered-noise hum, two sawtooth drones, square-wave arpeggios); `show()` sets mood `calm` or `fight`; it starts on the first pointer or key press
 - Shield: `combat.carried` is the part of `ward` kept from the previous turn by `batteryBank`; it absorbs first and expires at the next turn start; attack events carry `blocked` and `lost`
-- Selling: `sell` action and `sellPrice` in `run.js`; `run.startSize` (bank size at run start) is the floor; old saves default to 26
+- Selling: `sell` action, `sellPrice` and `canSell` in `run.js`; each charge may drop at most `sellMargin` (2) below `run.startInks`; `sortedBag` orders every bank list by charge then value
 - Meta lives on its own `#hangar` section shown as the Workshop; the title only shows `#open-hangar` once data exists
 - `src/ui/board.js` animates cells by id (`places`): new ids fall from above their column, moved ids slide; targets drive hit-testing, so input never waits for animation
+- Balance: `npm run balance` includes the `player` policy (modules, fabricator, rests); `docs/balance.md` keeps the per-act damage table; aim for deaths spread across acts, not piled on one boss
+- Visual language: chamfered panels (`--chamfer`), corner brackets, segmented meters with a delayed `.ghost`, mono numerals (`--mono`), no rounded pills; feedback floats are `{value, tag, tone, weight}` and the link name shows in `#banner`, heavy hits flash `#impact`
+- Choice cards carry `tiered common|uncommon|rare`; cells tier by value (1, 2, 3+)

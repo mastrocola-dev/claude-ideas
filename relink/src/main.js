@@ -3,7 +3,20 @@ import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { canStartDaily, createDailyRun, dateKey, recordDaily, shareText, startDaily } from './core/daily.js'
 import { inks, scribes, unlockCosts } from './core/data.js'
 import { bank, chooseScribe, hintSeen, lamplightEarned, runOptions, spend } from './core/meta.js'
-import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice, sellPrice } from './core/run.js'
+import {
+  act,
+  canSell,
+  createRun,
+  markPrice,
+  minBag,
+  nodeAt,
+  openLanes,
+  removePrice,
+  runePrice,
+  sellMargin,
+  sellPrice,
+  sortedBag,
+} from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
 import { applyStatic, glyphName, guide, local, t } from './ui/i18n.js'
@@ -39,28 +52,34 @@ const runeChip = (rune, props = {}) =>
 
 const runeText = rune => `${local('inks', rune.ink).name} ${numeral(rune.value)}`
 
-const markChoice = (key, extra, onclick) =>
-  el(
+const markChoice = (key, extra, onclick) => {
+  const mark = local('marginalia', key)
+  return el(
     'button',
-    { type: 'button', className: 'choice', onclick },
+    { type: 'button', className: `choice tiered ${mark.rarity}`, onclick },
     el('span', { className: 'mark' }, '◈'),
     el(
       'span',
       {},
-      el('strong', {}, local('marginalia', key).name),
-      el('small', {}, `${t(local('marginalia', key).rarity)}. ${local('marginalia', key).text}`),
+      el('em', { className: 'rarity' }, t(mark.rarity)),
+      el('strong', {}, mark.name),
+      el('small', {}, mark.text),
     ),
     extra,
   )
+}
+
+const runeTier = rune => (rune.value >= 3 ? 'rare' : rune.value === 2 ? 'uncommon' : 'common')
 
 const runeChoice = (rune, extra, onclick) =>
   el(
     'button',
-    { type: 'button', className: 'choice', onclick },
+    { type: 'button', className: `choice tiered ${runeTier(rune)}`, onclick },
     runeChip(rune),
     el(
       'span',
       {},
+      el('em', { className: 'rarity' }, t(runeTier(rune))),
       el('strong', {}, runeText(rune)),
       el('small', {}, t('runeDoes', { does: local('inks', rune.ink).does, value: rune.value })),
     ),
@@ -244,7 +263,7 @@ const renderMap = () => {
     ),
   )
   $('inkwell').replaceChildren(
-    el('div', { className: 'bag' }, ...run.bag.map(rune => runeChip(rune, { title: runeText(rune) }))),
+    el('div', { className: 'bag' }, ...sortedBag(run.bag).map(rune => runeChip(rune, { title: runeText(rune) }))),
     ...(run.marks.length
       ? run.marks.map(key =>
           el('p', {}, el('strong', {}, `${local('marginalia', key).name}. `), local('marginalia', key).text),
@@ -257,10 +276,34 @@ const renderMap = () => {
 
 const intentText = intent => t(intent.kind === 'ward' ? 'wardIntent' : intent.kind, { n: intent.value })
 
-const intentPill = (intent, ward) =>
-  intent.kind === 'attack' && ward
-    ? `${intentText(intent)} · ${t('getsThrough', { n: Math.max(0, intent.value - ward) })}`
-    : intentText(intent)
+const intentIcons = { attack: '✕', ward: '■', glitch: '▒', boost: '▲', drain: '▽', reroute: '⇣' }
+const intentCaptions = {
+  attack: 'capAttack',
+  ward: 'capWard',
+  glitch: 'capGlitch',
+  boost: 'capBoost',
+  drain: 'capDrain',
+  reroute: 'capReroute',
+}
+
+const renderIntent = (intent, ward) => {
+  const through = intent.kind === 'attack' && ward ? t('getsThrough', { n: Math.max(0, intent.value - ward) }) : null
+  $('intent').className = `intent ${intent.kind}`
+  $('intent').ariaLabel = [intentText(intent), through].filter(Boolean).join(' · ')
+  $('intent').replaceChildren(
+    el('small', { className: 'intent-head', ariaHidden: 'true' }, t('intentNext')),
+    el('span', { className: 'intent-icon', ariaHidden: 'true' }, intentIcons[intent.kind]),
+    el('b', { ariaHidden: 'true' }, `${intent.kind === 'boost' ? '+' : ''}${intent.value}`),
+    el('small', { ariaHidden: 'true' }, t(intentCaptions[intent.kind])),
+    through ? el('em', { ariaHidden: 'true' }, through) : null,
+  )
+}
+
+const fill = (id, share) => {
+  const width = `${Math.max(0, share) * 100}%`
+  $(id).style.width = width
+  $(id).parentElement.querySelector('.ghost').style.width = width
+}
 
 const glyphParts = glyph =>
   [
@@ -310,10 +353,9 @@ const renderCombat = () => {
   const { enemy } = combat
   const intent = intentOf(combat)
   $('foe-name').textContent = local('enemies', enemy.key).name
-  $('intent').textContent = intentPill(intent, combat.ward)
-  $('intent').className = `intent ${intent.kind}`
+  renderIntent(intent, combat.ward)
   $('foe-hp').textContent = `${enemy.hp} / ${enemy.maxHp}`
-  $('foe-hp-fill').style.width = `${(enemy.hp / enemy.maxHp) * 100}%`
+  fill('foe-hp-fill', enemy.hp / enemy.maxHp)
   $('foe-status').textContent =
     [
       enemy.ward && t('ward', { n: enemy.ward }),
@@ -324,7 +366,7 @@ const renderCombat = () => {
       .join(' · ') || ' '
   $('log').textContent = combat.events.map(event => eventText(combat, event)).join(' · ')
   $('you-hp').textContent = `${combat.hp} / ${combat.maxHp}`
-  $('you-hp-fill').style.width = `${(combat.hp / combat.maxHp) * 100}%`
+  fill('you-hp-fill', combat.hp / combat.maxHp)
   $('ward').textContent = combat.carried
     ? t('wardCarried', { n: combat.ward, c: Math.min(combat.carried, combat.ward) })
     : t('ward', { n: combat.ward })
@@ -380,17 +422,15 @@ const renderMarket = () => {
       return button
     }),
   )
-  const canSell = run.bag.length > run.startSize
-  $('sell-label').textContent = canSell
-    ? t('sell', { n: run.bag.length - run.startSize, floor: run.startSize })
-    : t('sellFloor', { floor: run.startSize })
+  const cells = sortedBag(run.bag)
+  $('sell-label').textContent = t('sell', { n: sellMargin })
   $('market-sell').replaceChildren(
-    ...run.bag.map(rune =>
+    ...cells.map(rune =>
       el(
         'button',
         {
           type: 'button',
-          disabled: !canSell,
+          disabled: !canSell(run, rune),
           onclick: () => dispatch({ type: 'sell', id: rune.id }),
         },
         el('span', { className: 'sr-only' }, t('sellAria', { rune: runeText(rune), n: sellPrice(rune) })),
@@ -402,7 +442,7 @@ const renderMarket = () => {
   const canRemove = !offer.removed && run.gold >= removePrice && run.bag.length > minBag
   $('remove-label').textContent = offer.removed ? t('scraperWorn') : t('scrape', { n: removePrice })
   $('market-remove').replaceChildren(
-    ...run.bag.map(rune =>
+    ...cells.map(rune =>
       runeChip(rune, {
         type: 'button',
         disabled: !canRemove,

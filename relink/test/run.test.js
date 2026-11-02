@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { bestPath } from '../src/core/bot.js'
-import { act, createRun, floors, nodeAt, openLanes, reachable } from '../src/core/run.js'
+import { act, createRun, floors, inkCounts, nodeAt, openLanes, reachable, sortedBag } from '../src/core/run.js'
 
 const autoplay = seed => {
   let run = createRun(seed)
@@ -111,12 +111,28 @@ test('each act draws foes from its own pool', () => {
   assert.ok(['crab', 'diver'].includes(run.combat.enemy.key))
 })
 
-test('cells sell at the fabricator only while the bank is above its starting size', () => {
+test('selling stops when a charge would fall more than two below its starting count', () => {
   const start = createRun(4)
-  const extra = { id: 'x', ink: 'plasma', value: 3 }
-  const market = { ...start, screen: 'market', gold: 0, bag: [...start.bag, extra], offer: { runes: [], marks: [] } }
-  const sold = act(market, { type: 'sell', id: 'x' })
-  assert.equal(sold.gold, 22)
-  assert.equal(sold.bag.length, start.startSize)
-  assert.equal(act(sold, { type: 'sell', id: sold.bag[0].id }), sold)
+  const market = { ...start, screen: 'market', gold: 0, offer: { runes: [], marks: [] } }
+  const thermal = id => market.bag.filter(r => r.ink === 'thermal').find(r => r.id !== id)
+  let sold = act(market, { type: 'sell', id: thermal().id })
+  sold = act(sold, { type: 'sell', id: sold.bag.find(r => r.ink === 'thermal').id })
+  assert.equal(sold.gold, 24)
+  assert.equal(inkCounts(sold.bag).thermal, start.startInks.thermal - 2)
+  const blocked = act(sold, { type: 'sell', id: sold.bag.find(r => r.ink === 'thermal').id })
+  assert.equal(blocked, sold)
+  assert.notEqual(act(sold, { type: 'sell', id: sold.bag.find(r => r.ink === 'plasma').id }), sold)
+})
+
+test('the bank sorts by charge, then by value', () => {
+  const bag = [
+    { id: 'a', ink: 'shield', value: 1 },
+    { id: 'b', ink: 'plasma', value: 1 },
+    { id: 'c', ink: 'thermal', value: 3 },
+    { id: 'd', ink: 'plasma', value: 4 },
+  ]
+  assert.deepEqual(
+    sortedBag(bag).map(r => r.id),
+    ['d', 'b', 'c', 'a'],
+  )
 })

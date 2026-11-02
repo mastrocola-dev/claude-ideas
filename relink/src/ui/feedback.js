@@ -1,57 +1,76 @@
+import { inks } from '../core/data.js'
 import { glyphName, t } from './i18n.js'
 import { defeat, playEvent, victory } from './sound.js'
 
-const float = (host, text, tone) => {
+const heavyShare = 0.2
+
+const restart = (node, name) => {
+  node.classList.remove(name)
+  void node.offsetWidth
+  node.classList.add(name)
+}
+
+const float = (host, { value = '', tag, tone, weight = 0 }) => {
+  const layer = host.querySelector('.floats')
   const mark = document.createElement('span')
   mark.className = `float ${tone}`
-  mark.textContent = text
+  mark.style.setProperty('--weight', Math.min(1, weight).toFixed(2))
+  mark.style.setProperty('--slot', layer.children.length % 3)
+  mark.append(Object.assign(document.createElement('b'), { textContent: value }))
+  mark.append(Object.assign(document.createElement('small'), { textContent: tag }))
   mark.onanimationend = () => mark.remove()
-  host.querySelector('.floats').append(mark)
+  layer.append(mark)
 }
 
-const shake = host => {
-  host.classList.remove('hit')
-  void host.offsetWidth
-  host.classList.add('hit')
+const banner = glyph => {
+  const node = document.getElementById('banner')
+  node.style.setProperty('--glow', inks[glyph.ink]?.color ?? '#ffffff')
+  node.replaceChildren(
+    Object.assign(document.createElement('strong'), { textContent: glyphName(glyph) }),
+    Object.assign(document.createElement('span'), { textContent: `×${glyph.mult}` }),
+  )
+  restart(node, 'show')
 }
 
-const flourish = name => {
-  const title = document.createElement('strong')
-  title.className = 'flourish'
-  title.textContent = name
-  document.getElementById('preview').replaceChildren(title)
+const flash = color => {
+  const node = document.getElementById('impact')
+  node.style.setProperty('--flash', color)
+  restart(node, 'flash')
 }
 
 const reactions = {
-  ward: ({ foe }, { value }) => float(foe, t('plusWard', { n: value }), 'ward'),
-  boost: ({ foe }, { value }) => float(foe, t('plusBoost', { n: value }), 'wound'),
-  glitch: ({ foe }, { value }) => float(foe, t('glitched', { n: value }), 'glitch'),
-  drain: ({ foe }, { value }) => float(foe, t('drained', { n: value }), 'glitch'),
-  reroute: ({ foe }) => float(foe, t('rerouteFloat'), 'glitch'),
-  rewrite: ({ you }) => float(you, t('rewriteFloat'), 'ward'),
-  burn: ({ foe }, { value }) => {
-    float(foe, t('minusBurn', { n: value }), 'burn')
-    shake(foe)
+  ward: ({ foe }, { value }) => float(foe, { value: `+${value}`, tag: t('tagShield'), tone: 'ward' }),
+  boost: ({ foe }, { value }) => float(foe, { value: `+${value}`, tag: t('tagBoost'), tone: 'wound' }),
+  glitch: ({ foe }, { value }) => float(foe, { value, tag: t('tagGlitched'), tone: 'glitch' }),
+  drain: ({ foe }, { value }) => float(foe, { value, tag: t('tagDrained'), tone: 'glitch' }),
+  reroute: ({ foe }) => float(foe, { tag: t('rerouteFloat'), tone: 'glitch' }),
+  rewrite: ({ you }) => float(you, { tag: t('rewriteFloat'), tone: 'ward' }),
+  burn: ({ foe, after }, { value }) => {
+    float(foe, { value: `−${value}`, tag: t('tagHeat'), tone: 'burn', weight: value / 30 })
+    restart(foe, 'hit')
+    if (value >= after.enemy.maxHp * heavyShare) flash(inks.thermal.color)
   },
   attack: ({ you, before, after }, { value }) => {
     const lost = before.hp - after.hp
     if (lost) {
-      float(you, t('minusHealth', { n: lost }), 'wound')
-      shake(you)
+      float(you, { value: `−${lost}`, tag: t('tagIntegrity'), tone: 'wound', weight: lost / 25 })
+      restart(you, 'hit')
+      if (lost >= after.maxHp * heavyShare) flash('#ff4d5e')
     }
-    if (value > lost) float(you, t('warded', { n: value - lost }), 'ward')
+    if (value > lost) float(you, { value: value - lost, tag: t('tagBlocked'), tone: 'ward' })
   },
   glyph: ({ foe, you, before, after }, { glyph }) => {
     const lost = before.enemy.hp - after.enemy.hp
     const blocked = glyph.damage - lost
-    flourish(glyphName(glyph))
+    banner(glyph)
     if (lost) {
-      float(foe, t('minusWound', { n: lost }), 'wound')
-      shake(foe)
+      float(foe, { value: `−${lost}`, tag: t('tagDamage'), tone: 'wound', weight: lost / 60 })
+      restart(foe, 'hit')
+      if (lost >= after.enemy.maxHp * heavyShare) flash(inks[glyph.ink].color)
     }
-    if (blocked > 0 && after.enemy.hp > 0) float(foe, t('warded', { n: blocked }), 'ward')
-    if (glyph.burn) float(foe, t('plusBurn', { n: glyph.burn }), 'burn')
-    if (glyph.ward) float(you, t('plusWard', { n: glyph.ward }), 'ward')
+    if (blocked > 0 && after.enemy.hp > 0) float(foe, { value: blocked, tag: t('tagBlocked'), tone: 'ward' })
+    if (glyph.burn) float(foe, { value: `+${glyph.burn}`, tag: t('tagHeat'), tone: 'burn' })
+    if (glyph.ward) float(you, { value: `+${glyph.ward}`, tag: t('tagShield'), tone: 'ward', weight: glyph.ward / 40 })
   },
 }
 

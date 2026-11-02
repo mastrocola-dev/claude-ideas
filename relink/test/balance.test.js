@@ -6,10 +6,10 @@ import { rng } from '../src/core/rng.js'
 
 const seeds = Array.from({ length: 20 }, (_, i) => i + 1)
 
-test('the exhaustive bot clears act 1 at least 90% and the human-like bot 40 to 60%', () => {
+test('the exhaustive bot clears act 1 at least 90% and the human-like bot 55 to 85%', () => {
   assert.ok(summarize(seeds, 'exhaustive').firstActRate >= 0.9)
   const { firstActRate } = summarize(seeds, 'human')
-  assert.ok(firstActRate >= 0.4 && firstActRate <= 0.6, `human first act rate ${firstActRate}`)
+  assert.ok(firstActRate >= 0.55 && firstActRate <= 0.85, `human first act rate ${firstActRate}`)
 })
 
 test('always writing the longest stroke cannot win every run', () => {

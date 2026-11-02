@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap"
     />
     <link rel="stylesheet" href="src/ui/style.css" />
   </head>
@@ -64,9 +64,9 @@
       <article id="foe" class="foe">
         <div class="foe-head">
           <h2 id="foe-name" data-i18n="foe">Foe</h2>
-          <span id="intent" class="intent"></span>
+          <div id="intent" class="intent" role="img"></div>
         </div>
-        <div class="meter foe-meter"><span id="foe-hp-fill"></span><b id="foe-hp"></b></div>
+        <div class="meter foe-meter"><i class="ghost"></i><span id="foe-hp-fill"></span><b id="foe-hp"></b></div>
         <p id="foe-status" class="status-line"></p>
         <p id="log" class="log" aria-live="polite"></p>
         <div class="floats" aria-hidden="true"></div>
@@ -77,10 +77,13 @@
         <button type="button" id="combat-settings" class="codex-open" data-i18n-label="settings" aria-label="Settings">⚙</button>
         <button type="button" id="combat-codex" class="codex-open" data-i18n-label="openCodex" aria-label="Open the codex">?</button>
       </div>
-      <canvas id="board" data-i18n-label="runeBoard" aria-label="Rune board"></canvas>
+      <div class="stage">
+        <canvas id="board" data-i18n-label="runeBoard" aria-label="Rune board"></canvas>
+        <p id="banner" class="banner" aria-hidden="true"></p>
+      </div>
       <footer id="you" class="player">
         <div class="floats" aria-hidden="true"></div>
-        <div class="meter you-meter"><span id="you-hp-fill"></span><b id="you-hp"></b></div>
+        <div class="meter you-meter"><i class="ghost"></i><span id="you-hp-fill"></span><b id="you-hp"></b></div>
         <div class="player-row">
           <span id="ward" class="pill ward"></span>
           <span id="strokes" class="strokes"></span>
@@ -173,6 +176,7 @@
       <form method="dialog"><button type="submit" id="settings-close" class="primary" data-i18n="done">Done</button></form>
     </dialog>
 
+    <div id="impact" class="impact" aria-hidden="true"></div>
     <script type="module" src="src/main.js"></script>
   </body>
 </html>

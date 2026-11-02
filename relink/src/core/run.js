@@ -72,6 +72,18 @@ export const runePrice = rune => 14 + rune.value * 10
 export const markPrice = 70
 export const removePrice = 45
 export const sellPrice = rune => 7 + rune.value * 5
+export const sellMargin = 2
+
+export const inkCounts = bag => {
+  const counts = Object.fromEntries(writable.map(ink => [ink, 0]))
+  for (const rune of bag) counts[rune.ink] += 1
+  return counts
+}
+
+export const canSell = (run, rune) => inkCounts(run.bag)[rune.ink] > (run.startInks[rune.ink] ?? 0) - sellMargin
+
+export const sortedBag = bag =>
+  [...bag].sort((a, b) => writable.indexOf(a.ink) - writable.indexOf(b.ink) || b.value - a.value)
 export const minBag = 12
 
 const lockedMarks = unlocked => Object.keys(unlockCosts).filter(key => marginalia[key] && !unlocked.includes(key))
@@ -92,7 +104,7 @@ export const createRun = (seed, { scribe = 'rep7', unlocked = [] } = {}) => {
     maxHp: 70,
     gold: 30,
     bag: bag.map(([ink, value], i) => ({ id: `r${i}`, ink, value })),
-    startSize: bag.length,
+    startInks: inkCounts(bag.map(([ink, value]) => ({ ink, value }))),
     nextId: bag.length,
     marks,
     locked: lockedMarks(unlocked),
@@ -293,7 +305,7 @@ const actions = {
   },
   sell: (run, { id }) => {
     const rune = run.bag.find(r => r.id === id)
-    if (run.screen !== 'market' || !rune || run.bag.length <= run.startSize) return run
+    if (run.screen !== 'market' || !rune || !canSell(run, rune)) return run
     return { ...run, gold: run.gold + sellPrice(rune), bag: run.bag.filter(r => r !== rune) }
   },
   remove: (run, { id }) => {

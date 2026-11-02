@@ -1,7 +1,7 @@
 import { canExtend, intentOf, isValid, readGlyph } from './combat.js'
 import { acts, shrines } from './data.js'
 import { rng } from './rng.js'
-import { act, createRun, reachable } from './run.js'
+import { act, createRun, markPrice, nodeAt, reachable, runePrice } from './run.js'
 
 const worth = (state, glyph, threat) => {
   const lethal = glyph.damage >= state.enemy.hp + state.enemy.ward ? 1000 : 0
@@ -58,6 +58,7 @@ export const policies = {
   longest: () => longestPath,
   exhaustive: () => state => bestPath(state, 8),
   human: rand => state => humanPath(state, rand),
+  player: rand => state => humanPath(state, rand),
 }
 
 const decide = (run, rand) => {
@@ -68,6 +69,36 @@ const decide = (run, rand) => {
   return { type: 'leave' }
 }
 
+const lowFirst = ['rest', 'market', 'shrine', 'fight', 'elite', 'boss']
+const healthyFirst = ['fight', 'market', 'elite', 'shrine', 'rest', 'boss']
+
+const plan = (run, rand) => {
+  if (run.screen === 'map') {
+    const order = run.hp < run.maxHp * 0.45 ? lowFirst : healthyFirst
+    const rank = lane => order.indexOf(nodeAt(run, run.floor + 1, lane).kind)
+    return { type: 'choose', lane: [...reachable(run)].sort((a, b) => rank(a) - rank(b))[0] }
+  }
+  if (run.screen === 'reward' && run.offer.marks.length) return { type: 'takeMark', key: run.offer.marks[0] }
+  if (run.screen === 'reward') {
+    const best = run.offer.runes.reduce((top, rune, i, all) => (rune.value > all[top].value ? i : top), 0)
+    return { type: 'takeRune', index: best }
+  }
+  if (run.screen === 'rest' && run.hp > run.maxHp * 0.7 && run.offer.upgrades.length) {
+    return { type: 'upgrade', id: run.offer.upgrades[0] }
+  }
+  if (run.screen === 'shrine') return { type: 'shrine', option: shrines[run.offer.shrine].options.length - 1 }
+  if (run.screen === 'market' && run.offer.marks.length && run.gold >= markPrice) {
+    return { type: 'buyMark', key: run.offer.marks[0] }
+  }
+  if (run.screen === 'market') {
+    const index = run.offer.runes.findIndex(rune => rune.value >= 2 && run.gold >= runePrice(rune))
+    if (index >= 0) return { type: 'buyRune', index }
+  }
+  return decide(run, rand)
+}
+
+const planners = { player: plan }
+
 export const playRun = (seed, policy) => {
   const rand = rng(seed ^ 0x5a17)
   const pick = policies[policy](rand)
@@ -75,7 +106,7 @@ export const playRun = (seed, policy) => {
   const turns = []
   for (let step = 0; step < 5000 && !['victory', 'defeat'].includes(run.screen); step++) {
     if (run.screen !== 'combat') {
-      run = act(run, decide(run, rand))
+      run = act(run, (planners[policy] ?? decide)(run, rand))
       continue
     }
     const path = pick(run.combat)

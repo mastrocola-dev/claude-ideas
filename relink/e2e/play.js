@@ -140,7 +140,7 @@ try {
     if (stroke === 0) {
       assert.ok((await page.locator('#foe .float, #you .float').count()) >= 1)
       await page.screenshot({ path: `${shots}combat-feedback.png` })
-      assert.ok((await page.locator('#preview .flourish').count()) === 1)
+      assert.match(await page.textContent('#banner'), /×\d/)
     }
   }
   assert.equal(await screen(), 'reward')
@@ -210,20 +210,20 @@ try {
   const rune = { id: 'audit', ink: 'shield', value: 2 }
   await auditForced('map', { screen: 'map', offer: null, combat: null, floor: -1 })
   await auditForced('market', { screen: 'market', offer: { runes: [rune], marks: ['overclock'] } })
-  const extra = await page.evaluate(() => window.relink.run().bag.length - window.relink.run().startSize)
+  await page.evaluate(() => {
+    const run = window.relink.run()
+    const bag = Object.entries(run.startInks).flatMap(([ink, count]) =>
+      Array.from({ length: count }, (_, i) => ({ id: `e2e-${ink}-${i}`, ink, value: 1 + (i % 2) })),
+    )
+    window.relink.play({ ...run, bag })
+  })
   const scrap = await page.evaluate(() => window.relink.run().gold)
   await page.click('#sell-label')
-  if (extra > 0) {
-    await page.click('#market-sell button >> nth=0')
-    assert.ok((await page.evaluate(() => window.relink.run().gold)) > scrap)
-  }
-  await page.evaluate(() =>
-    window.relink.play({
-      ...window.relink.run(),
-      bag: window.relink.run().bag.slice(0, window.relink.run().startSize),
-    }),
-  )
+  await page.click('#market-sell button >> nth=0')
+  assert.ok((await page.evaluate(() => window.relink.run().gold)) > scrap)
+  await page.click('#market-sell button >> nth=0')
   assert.equal(await page.locator('#market-sell button >> nth=0').isDisabled(), true)
+  assert.equal(await page.locator('#market-sell button >> nth=-1').isDisabled(), false)
   await page.screenshot({ path: `${shots}market.png`, fullPage: true })
   await auditForced('rest', { screen: 'rest', offer: { upgrades: [] } })
   await auditForced('shrine', { screen: 'shrine', offer: { shrine: 'oracle' } })
