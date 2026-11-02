@@ -29,7 +29,7 @@ const nameOf = (length, ink) => {
   return length >= 7 ? 'Canticle' : length >= 5 ? 'Verse' : 'Line'
 }
 
-export const readGlyph = (runes, marks) => {
+export const readGlyph = (runes, marks, bagSize = 0) => {
   const count = { brine: 0, ember: 0, moss: 0, salt: 0 }
   const chips = { brine: 0, ember: 0, moss: 0, salt: 0 }
   for (const rune of runes) {
@@ -39,7 +39,7 @@ export const readGlyph = (runes, marks) => {
   const used = ['brine', 'ember', 'moss'].filter(ink => count[ink])
   const ink = used.length === 1 ? used[0] : null
   const length = runes.length
-  const glyph = { length, ink, count }
+  const glyph = { length, ink, count, bagSize }
   let mult = tierOf(length) + (ink ? 1 : 0)
   let burn = count.ember
   for (const mark of marks) {
@@ -47,7 +47,7 @@ export const readGlyph = (runes, marks) => {
     mult += bonus.mult ?? 0
     burn += bonus.burn ?? 0
   }
-  const strike = chips.brine + chips.ember + chips.salt
+  const strike = chips.brine + chips.ember + chips.salt + (marks.includes('mossEdge') ? chips.moss : 0)
   return {
     name: nameOf(length, ink),
     ink,
@@ -106,6 +106,7 @@ export const createCombat = ({ bag, hp, maxHp, marks, enemy, floor, seed }) => {
     maxHp,
     ward: 0,
     marks,
+    bagSize: bag.length,
     strokes: strokesPerTurn(marks),
     turn: 1,
     written: 0,
@@ -139,12 +140,18 @@ const undertow = (cells, column) =>
 
 const enemyAct = state => {
   const burnDamage = state.enemy.burn * (has(state, 'lampOil') ? 2 : 1)
-  let enemy = { ...state.enemy, ward: 0, hp: state.enemy.hp - burnDamage, burn: Math.max(0, state.enemy.burn - 1) }
+  let enemy = {
+    ...state.enemy,
+    ward: 0,
+    hp: state.enemy.hp - burnDamage,
+    burn: has(state, 'undyingEmber') ? state.enemy.burn : Math.max(0, state.enemy.burn - 1),
+  }
   const events = burnDamage ? [{ kind: 'burn', value: burnDamage }] : []
   if (enemy.hp <= 0) return { ...state, enemy: { ...enemy, hp: 0 }, status: 'won', events }
   const intent = intentOf(state)
   let next = { ...state, enemy, events: [...events, intent] }
   const rand = rng(state.seed)
+  const crumbled = next.cells.filter(rune => rune?.ink === 'salt' && rune.ttl <= 1).length
   const cells = next.cells.map(rune =>
     rune?.ink === 'salt' ? (rune.ttl > 1 ? { ...rune, ttl: rune.ttl - 1 } : null) : rune,
   )
@@ -174,7 +181,7 @@ const enemyAct = state => {
   if (next.hp <= 0) return { ...next, hp: 0, status: 'lost' }
   return draw({
     ...next,
-    ward: has(state, 'mossRubric') ? next.ward : 0,
+    ward: (has(state, 'mossRubric') ? next.ward : 0) + (has(state, 'saltHarvest') ? crumbled * 3 : 0),
     strokes: strokesPerTurn(state.marks),
     turn: state.turn + 1,
   })
@@ -185,7 +192,7 @@ export const endTurn = state => (state.status === 'playing' ? enemyAct({ ...stat
 export const write = (state, path) => {
   if (state.status !== 'playing' || !state.strokes || !isValid(state, path)) return state
   const runes = path.map(cell => state.cells[cell])
-  const glyph = readGlyph(runes, state.marks)
+  const glyph = readGlyph(runes, state.marks, state.bagSize)
   const enemy = hurt(state.enemy, glyph.damage)
   const cells = state.cells.map((rune, i) => (path.includes(i) ? null : rune))
   const discard = [...state.discard, ...runes.filter(r => r.ink !== 'salt')]

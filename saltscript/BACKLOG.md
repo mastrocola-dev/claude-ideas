@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S07 More marginalia
-
-Eight more marginalia with rarities (common, uncommon, rare) that open new builds: burn-based, ward-to-wound conversion, salt synergies, short-stroke builds, bag-size builds. Rewards and market roll by rarity. Done when each has a rule test.
-
 ### S08 More shrines
 
 Four more shrines with real trade-offs in the world's voice (for example the Ink Leech, the Tide Bell, the Mapmaker's Corpse, the Lamp That Asks). Done when each option has a test.
@@ -50,6 +46,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S04 Sound and haptics: synthesized cues per event, persisted mute, guarded vibrate (2026-11-02)
 - S05 Balance harness: human-like policy, `npm run balance`, boss and elite tuned, bands pinned by test (2026-11-02)
 - S06 Acts two and three: Sunken Nave and Lighthouse, smudge and undertow, bosses offer marginalia, half heal between acts (2026-11-02)
+- S07 More marginalia: eight new with rarities, rolled by weight in rewards and market (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

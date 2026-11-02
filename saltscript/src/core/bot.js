@@ -18,7 +18,7 @@ const rankPaths = (state, depth) => {
   const walk = path => {
     if (path.length >= 3) {
       const runes = path.map(i => state.cells[i])
-      ranked.push({ score: worth(state, readGlyph(runes, state.marks), threat), path })
+      ranked.push({ score: worth(state, readGlyph(runes, state.marks, state.bagSize), threat), path })
     }
     if (path.length === depth) return
     for (const next of cells) {

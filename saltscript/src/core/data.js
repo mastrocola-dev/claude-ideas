@@ -171,32 +171,79 @@ export const acts = [
   },
 ]
 
+export const rarityWeights = [
+  ['common', 60],
+  ['uncommon', 30],
+  ['rare', 10],
+]
+
 export const marginalia = {
   tidalGloss: {
     name: 'Tidal Gloss',
+    rarity: 'common',
     text: 'Seals and Litanies of Brine gain +2 mult.',
     glyph: g => ({ mult: g.ink === 'brine' ? 2 : 0 }),
   },
+  vespers: {
+    name: 'Vespers',
+    rarity: 'common',
+    text: 'Mixed strokes gain +1 mult.',
+    glyph: g => ({ mult: g.ink ? 0 : 1 }),
+  },
+  gildedEdge: { name: 'Gilded Edge', rarity: 'common', text: 'Gain 10 more gold after each fight.' },
+  cinderChant: {
+    name: 'Cinder Chant',
+    rarity: 'common',
+    text: 'Strokes with two or more Ember runes gain +1 mult.',
+    glyph: g => ({ mult: g.count.ember >= 2 ? 1 : 0 }),
+  },
+  shortHand: {
+    name: 'Short Hand',
+    rarity: 'common',
+    text: 'Strokes of exactly 3 runes gain +2 mult.',
+    glyph: g => ({ mult: g.length === 3 ? 2 : 0 }),
+  },
+  saltHarvest: { name: 'Salt Harvest', rarity: 'common', text: 'Each Salt rune that crumbles grants 3 ward.' },
   longHand: {
     name: 'Long Hand',
+    rarity: 'uncommon',
     text: 'Strokes of 6 or more runes gain +2 mult.',
     glyph: g => ({ mult: g.length >= 6 ? 2 : 0 }),
   },
   emberPsalm: {
     name: 'Ember Psalm',
+    rarity: 'uncommon',
     text: 'Each Ember rune in a stroke adds 1 more burn.',
     glyph: g => ({ burn: g.count.ember }),
   },
-  vespers: {
-    name: 'Vespers',
-    text: 'Mixed strokes gain +1 mult.',
-    glyph: g => ({ mult: g.ink ? 0 : 1 }),
+  mossRubric: { name: 'Moss Rubric', rarity: 'uncommon', text: 'Ward is kept between turns.' },
+  saltwise: {
+    name: 'Saltwise',
+    rarity: 'uncommon',
+    text: 'Salt can be written through. It is worth 1 and never breaks a Seal.',
   },
-  mossRubric: { name: 'Moss Rubric', text: 'Ward is kept between turns.' },
-  thirdHand: { name: 'Third Hand', text: 'Write 3 strokes each turn instead of 2.' },
-  lampOil: { name: 'Lamp Oil', text: 'Burn deals double damage.' },
-  saltwise: { name: 'Saltwise', text: 'Salt can be written through. It is worth 1 and never breaks a Seal.' },
-  gildedEdge: { name: 'Gilded Edge', text: 'Gain 10 more gold after each fight.' },
+  mossEdge: { name: 'Moss Edge', rarity: 'uncommon', text: 'Moss runes wound as well as ward.' },
+  saltedTongue: {
+    name: 'Salted Tongue',
+    rarity: 'uncommon',
+    text: 'Each Salt rune written in a stroke adds +1 mult.',
+    glyph: g => ({ mult: g.count.salt }),
+  },
+  fullInkwell: {
+    name: 'Full Inkwell',
+    rarity: 'uncommon',
+    text: 'Strokes gain +1 mult for every 15 runes in your inkwell.',
+    glyph: g => ({ mult: Math.floor(g.bagSize / 15) }),
+  },
+  thirdHand: { name: 'Third Hand', rarity: 'rare', text: 'Write 3 strokes each turn instead of 2.' },
+  lampOil: { name: 'Lamp Oil', rarity: 'rare', text: 'Burn deals double damage.' },
+  undyingEmber: { name: 'Undying Ember', rarity: 'rare', text: 'Burn no longer fades each turn.' },
+  leanHand: {
+    name: 'Lean Hand',
+    rarity: 'rare',
+    text: 'Strokes gain +3 mult while your inkwell holds 18 runes or fewer.',
+    glyph: g => ({ mult: g.bagSize <= 18 ? 3 : 0 }),
+  },
 }
 
 export const shrines = {

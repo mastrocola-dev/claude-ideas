@@ -1,5 +1,5 @@
 import { createCombat, endTurn, write } from './combat.js'
-import { acts, marginalia, shrines, startingBag, writable } from './data.js'
+import { acts, marginalia, rarityWeights, shrines, startingBag, writable } from './data.js'
 import { rng } from './rng.js'
 
 export const floors = 8
@@ -55,8 +55,18 @@ const runes = (rand, run, count, bias) => {
   return [list, next]
 }
 
-const freshMarks = (rand, run, count) =>
-  rand.shuffle(Object.keys(marginalia).filter(key => !run.marks.includes(key))).slice(0, count)
+const freshMarks = (rand, run, count) => {
+  const chosen = []
+  const unseen = key => !run.marks.includes(key) && !chosen.includes(key)
+  for (let i = 0; i < count; i++) {
+    const rarity = weighted(rand, rarityWeights)
+    const open = Object.keys(marginalia).filter(unseen)
+    const ofRarity = open.filter(key => marginalia[key].rarity === rarity)
+    const pool = ofRarity.length ? ofRarity : open
+    if (pool.length) chosen.push(rand.pick(pool))
+  }
+  return chosen
+}
 
 export const runePrice = rune => 14 + rune.value * 10
 export const markPrice = 70

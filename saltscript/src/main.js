@@ -35,7 +35,12 @@ const markChoice = (key, extra, onclick) =>
     'button',
     { type: 'button', className: 'choice', onclick },
     el('span', { className: 'mark' }, '¶'),
-    el('span', {}, el('strong', {}, marginalia[key].name), el('small', {}, marginalia[key].text)),
+    el(
+      'span',
+      {},
+      el('strong', {}, marginalia[key].name),
+      el('small', {}, `${marginalia[key].rarity}. ${marginalia[key].text}`),
+    ),
     extra,
   )
 
@@ -168,6 +173,7 @@ const renderPreview = combat => {
   const glyph = readGlyph(
     path.map(i => combat.cells[i]),
     combat.marks,
+    combat.bagSize,
   )
   const parts = [
     glyph.strike && `${glyph.strike} × ${glyph.mult} = ${glyph.damage} wound`,
