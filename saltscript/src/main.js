@@ -1,19 +1,21 @@
 import { bestPath } from './core/bot.js'
 import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { canStartDaily, createDailyRun, dateKey, recordDaily, shareText, startDaily } from './core/daily.js'
-import { acts, glyphTiers, inks, intentGuide, marginalia, scribes, shrines, unlockCosts } from './core/data.js'
-import { bank, chooseScribe, hintFor, hintSeen, lamplightEarned, runOptions, spend } from './core/meta.js'
+import { inks, scribes, unlockCosts } from './core/data.js'
+import { bank, chooseScribe, hintSeen, lamplightEarned, runOptions, spend } from './core/meta.js'
 import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
+import { applyStatic, glyphName, guide, local, t } from './ui/i18n.js'
+import { setMood, syncMusic } from './ui/music.js'
 import { drawRoutes } from './ui/routes.js'
-import { isMuted, scratch, setMuted } from './ui/sound.js'
+import { onSettings, settings, updateSettings } from './ui/settings.js'
+import { scratch } from './ui/sound.js'
 import { loadMeta, loadRun, saveMeta, saveRun } from './ui/store.js'
 
 const $ = id => document.getElementById(id)
 const screens = ['title', 'map', 'combat', 'reward', 'market', 'rest', 'shrine', 'end']
 const symbols = { fight: '⚔', elite: '☠', shrine: '✶', market: '⚖', rest: '☾', boss: '♆' }
-const labels = { fight: 'Fight', elite: 'Elite', shrine: 'Shrine', market: 'Market', rest: 'Rest' }
 const board = createBoard($('board'))
 
 let run = loadRun()
@@ -35,7 +37,7 @@ const runeChip = (rune, props = {}) =>
     `${inks[rune.ink].mark}${numeral(rune.value)}`,
   )
 
-const runeText = rune => `${inks[rune.ink].name} ${numeral(rune.value)}`
+const runeText = rune => `${local('inks', rune.ink).name} ${numeral(rune.value)}`
 
 const markChoice = (key, extra, onclick) =>
   el(
@@ -45,8 +47,8 @@ const markChoice = (key, extra, onclick) =>
     el(
       'span',
       {},
-      el('strong', {}, marginalia[key].name),
-      el('small', {}, `${marginalia[key].rarity}. ${marginalia[key].text}`),
+      el('strong', {}, local('marginalia', key).name),
+      el('small', {}, `${t(local('marginalia', key).rarity)}. ${local('marginalia', key).text}`),
     ),
     extra,
   )
@@ -56,19 +58,25 @@ const runeChoice = (rune, extra, onclick) =>
     'button',
     { type: 'button', className: 'choice', onclick },
     runeChip(rune),
-    el('span', {}, el('strong', {}, runeText(rune)), el('small', {}, `${inks[rune.ink].does}, worth ${rune.value}`)),
+    el(
+      'span',
+      {},
+      el('strong', {}, runeText(rune)),
+      el('small', {}, t('runeDoes', { does: local('inks', rune.ink).does, value: rune.value })),
+    ),
     extra,
   )
 
 const show = screen => {
   for (const id of screens) $(id).hidden = id !== screen
+  setMood(screen === 'combat' ? 'fight' : 'calm')
 }
 
 const statsBar = target =>
   target.replaceChildren(
-    el('span', {}, 'Health ', el('b', {}, `${run.hp}/${run.maxHp}`)),
-    el('span', {}, 'Gold ', el('b', {}, `${run.gold}`)),
-    el('span', {}, 'Runes ', el('b', {}, `${run.bag.length}`)),
+    el('span', {}, `${t('health')} `, el('b', {}, `${run.hp}/${run.maxHp}`)),
+    el('span', {}, `${t('gold')} `, el('b', {}, `${run.gold}`)),
+    el('span', {}, `${t('runes')} `, el('b', {}, `${run.bag.length}`)),
   )
 
 const dispatch = action => {
@@ -91,18 +99,22 @@ const queueFoe = () => {
   }, foePause)
 }
 
-const renderMute = () => {
-  $('mute').textContent = isMuted() ? 'Sound off' : 'Sound on'
-  $('mute').ariaPressed = String(isMuted())
-}
+const bestText = best => (best ? t('bestValue', { name: glyphName(best), damage: best.damage }) : t('none'))
 
-const unlockTitle = key => marginalia[key] ?? scribes[key]
+const shareWords = () => ({
+  title: date => t('shareTitle', { date }),
+  won: t('remembered'),
+  place: (act, floor) => t('sharePlace', { act: local('acts', act).name, floor }),
+  best: best => t('shareBest', { best: bestText(best) }),
+})
+
+const unlockTitle = key => local(scribes[key] ? 'scribes' : 'marginalia', key)
 
 const renderLamplight = () => {
   const known = meta.lamplight > 0 || meta.unlocked.length > 0
   $('meta').hidden = !known
   if (!known) return
-  $('lamplight').textContent = `Lamplight ${meta.lamplight}`
+  $('lamplight').textContent = t('lamplight', { n: meta.lamplight })
   $('unlocks').replaceChildren(
     ...Object.entries(unlockCosts).map(([key, cost]) => {
       const owned = meta.unlocked.includes(key)
@@ -119,7 +131,7 @@ const renderLamplight = () => {
         },
         el('span', { className: 'mark' }, '✶'),
         el('span', {}, el('strong', {}, unlockTitle(key).name), el('small', {}, unlockTitle(key).text)),
-        el('span', { className: 'price' }, owned ? 'Lit' : `${cost} light`),
+        el('span', { className: 'price' }, owned ? t('lit') : t('light', { n: cost })),
       )
       button.dataset.unlock = key
       return button
@@ -140,7 +152,7 @@ const renderLamplight = () => {
             renderLamplight()
           },
         },
-        meta.scribe === key ? `${scribes[key].name} · chosen` : scribes[key].name,
+        meta.scribe === key ? t('chosen', { name: local('scribes', key).name }) : local('scribes', key).name,
       )
       button.dataset.scribe = key
       return button
@@ -166,25 +178,24 @@ const share = async (button, text) => {
     if (navigator.share) await navigator.share({ text })
     else {
       await navigator.clipboard.writeText(text)
-      button.textContent = 'Copied'
+      button.textContent = t('copied')
     }
   } catch {}
 }
 
 const renderShare = (button, record) => {
   button.hidden = !record?.result
-  if (record?.result) button.onclick = () => share(button, shareText(record.date, record.result))
+  if (record?.result) button.onclick = () => share(button, shareText(record.date, record.result, shareWords()))
 }
 
 const renderDaily = () => {
   const date = dateKey(new Date())
   $('daily').disabled = !canStartDaily(meta, date)
-  $('daily').textContent = canStartDaily(meta, date) ? 'Face the Daily Tide' : "Today's Tide is written"
+  $('daily').textContent = canStartDaily(meta, date) ? t('daily') : t('dailyDone')
   renderShare($('daily-share'), meta.daily?.date === date ? meta.daily : null)
 }
 
 const renderTitle = () => {
-  renderMute()
   renderLamplight()
   renderDaily()
   $('continue').hidden = !run || ['victory', 'defeat'].includes(run.screen)
@@ -193,8 +204,8 @@ const renderTitle = () => {
 
 const renderMap = () => {
   statsBar($('map-bar'))
-  const act = acts[run.actIndex]
-  const label = kind => (kind === 'boss' ? act.bossLabel : labels[kind])
+  const act = local('acts', run.actIndex)
+  const label = kind => (kind === 'boss' ? act.bossLabel : t(kind))
   $('act-name').textContent = act.name
   const open = openLanes(run)
   $('floors').replaceChildren(
@@ -213,7 +224,7 @@ const renderMap = () => {
               type: 'button',
               className: `node ${node.kind}${can ? ' open' : ''}${here ? ' here' : ''}${lost ? ' lost' : ''}`,
               disabled: !can,
-              ariaLabel: `${label(node.kind)}, floor ${floor + 1}`,
+              ariaLabel: t('nodeLabel', { label: label(node.kind), floor: floor + 1 }),
               onclick: () => dispatch({ type: 'choose', lane: node.lane }),
             },
             el('span', { className: 'sym' }, symbols[node.kind]),
@@ -228,35 +239,32 @@ const renderMap = () => {
   $('inkwell').replaceChildren(
     el('div', { className: 'bag' }, ...run.bag.map(rune => runeChip(rune, { title: runeText(rune) }))),
     ...(run.marks.length
-      ? run.marks.map(key => el('p', {}, el('strong', {}, `${marginalia[key].name}. `), marginalia[key].text))
-      : [el('p', {}, 'No marginalia yet. Elites, shrines and the market grant them.')]),
+      ? run.marks.map(key =>
+          el('p', {}, el('strong', {}, `${local('marginalia', key).name}. `), local('marginalia', key).text),
+        )
+      : [el('p', {}, t('noMarks'))]),
   )
   show('map')
   drawRoutes($('links'), $('floors'), run)
 }
 
-const intentText = intent =>
-  ({
-    attack: `Strikes ${intent.value}`,
-    ward: `Wards ${intent.value}`,
-    salt: `Salts ${intent.value} runes`,
-    rise: `Swells +${intent.value}`,
-    smudge: `Smudges ${intent.value} runes`,
-    undertow: 'Drags a column under',
-  })[intent.kind]
+const intentText = intent => t(intent.kind === 'ward' ? 'wardIntent' : intent.kind, { n: intent.value })
+
+const glyphParts = glyph =>
+  [
+    glyph.damage && t('woundPart', { n: glyph.damage }),
+    glyph.ward && t('wardPart', { n: glyph.ward }),
+    glyph.burn && t('burnPart', { n: glyph.burn }),
+  ]
+    .filter(Boolean)
+    .join(', ')
 
 const eventText = (combat, event) => {
   if (event.kind === 'glyph') {
-    const { glyph } = event
-    const parts = [
-      glyph.damage && `${glyph.damage} wound`,
-      glyph.ward && `${glyph.ward} ward`,
-      glyph.burn && `${glyph.burn} burn`,
-    ]
-    return `${glyph.name}: ${parts.filter(Boolean).join(', ')}`
+    return t('glyphLog', { name: glyphName(event.glyph), parts: glyphParts(event.glyph) })
   }
-  if (event.kind === 'burn') return `Burn sears for ${event.value}`
-  return `${combat.enemy.name} ${intentText(event).toLowerCase()}`
+  if (event.kind === 'burn') return t('burnSears', { n: event.value })
+  return t('foeActs', { foe: local('enemies', combat.enemy.key).name, intent: intentText(event) })
 }
 
 const renderPreview = combat => {
@@ -264,9 +272,7 @@ const renderPreview = combat => {
   $('write').hidden = !ready
   $('end-turn').hidden = ready
   if (!ready) {
-    $('preview').replaceChildren(
-      path.length ? 'Keep going, three runes at least' : 'Trace three or more touching runes',
-    )
+    $('preview').replaceChildren(path.length ? t('keepGoing') : t('traceHint'))
     return
   }
   const glyph = readGlyph(
@@ -275,45 +281,45 @@ const renderPreview = combat => {
     combat.bagSize,
   )
   const parts = [
-    glyph.strike && `${glyph.strike} × ${glyph.mult} = ${glyph.damage} wound`,
-    glyph.guard && `${glyph.guard} × ${glyph.mult} = ${glyph.ward} ward`,
-    glyph.burn && `${glyph.burn} burn`,
+    glyph.strike && t('sum', { a: glyph.strike, m: glyph.mult, r: glyph.damage }),
+    glyph.guard && t('sumWard', { a: glyph.guard, m: glyph.mult, r: glyph.ward }),
+    glyph.burn && t('burnPart', { n: glyph.burn }),
   ]
-  $('preview').replaceChildren(el('strong', {}, glyph.name), parts.filter(Boolean).join(' · '))
+  $('preview').replaceChildren(el('strong', {}, glyphName(glyph)), parts.filter(Boolean).join(' · '))
 }
 
 const renderCombat = () => {
   const { combat } = run
   const { enemy } = combat
   const intent = intentOf(combat)
-  $('foe-name').textContent = enemy.name
+  $('foe-name').textContent = local('enemies', enemy.key).name
   $('intent').textContent = intentText(intent)
   $('intent').className = `intent ${intent.kind}`
   $('foe-hp').textContent = `${enemy.hp} / ${enemy.maxHp}`
   $('foe-hp-fill').style.width = `${(enemy.hp / enemy.maxHp) * 100}%`
   $('foe-status').textContent =
     [
-      enemy.ward && `Ward ${enemy.ward}`,
-      enemy.burn && `Burning ${enemy.burn}`,
-      enemy.strength && `Swollen +${enemy.strength}`,
+      enemy.ward && t('ward', { n: enemy.ward }),
+      enemy.burn && t('burning', { n: enemy.burn }),
+      enemy.strength && t('swollen', { n: enemy.strength }),
     ]
       .filter(Boolean)
       .join(' · ') || ' '
   $('log').textContent = combat.events.map(event => eventText(combat, event)).join(' · ')
   $('you-hp').textContent = `${combat.hp} / ${combat.maxHp}`
   $('you-hp-fill').style.width = `${(combat.hp / combat.maxHp) * 100}%`
-  $('ward').textContent = `Ward ${combat.ward}`
+  $('ward').textContent = t('ward', { n: combat.ward })
   const total = combat.marks.includes('thirdHand') ? 3 : 2
   $('strokes').replaceChildren(
     ...Array.from({ length: total }, (_, i) => el('i', { className: i < combat.strokes ? '' : 'spent' })),
-    el('span', {}, `Turn ${combat.turn}`),
+    el('span', {}, t('turn', { n: combat.turn })),
   )
   $('marks-row').replaceChildren(
-    ...combat.marks.map(key => el('li', { title: marginalia[key].text }, marginalia[key].name)),
+    ...combat.marks.map(key => el('li', { title: local('marginalia', key).text }, local('marginalia', key).name)),
   )
   $('end-turn').disabled = !canAct()
   renderPreview(combat)
-  const hint = hintFor(meta)
+  const hint = guide('hints')[meta.hints] ?? null
   $('hint').hidden = !hint
   $('hint').textContent = hint ?? ''
   show('combat')
@@ -322,10 +328,10 @@ const renderCombat = () => {
 
 const renderReward = () => {
   const { offer } = run
-  $('reward-gold').textContent = `You gather ${offer.gold} gold from the wrack.`
+  $('reward-gold').textContent = t('gatherGold', { n: offer.gold })
   $('reward-marks').replaceChildren(
     ...offer.marks.map(key =>
-      markChoice(key, el('span', { className: 'price' }, 'Take'), () => dispatch({ type: 'takeMark', key })),
+      markChoice(key, el('span', { className: 'price' }, t('take')), () => dispatch({ type: 'takeMark', key })),
     ),
   )
   $('reward-runes').replaceChildren(
@@ -339,7 +345,7 @@ const renderMarket = () => {
   const { offer } = run
   $('market-runes').replaceChildren(
     ...offer.runes.map((rune, index) => {
-      const button = runeChoice(rune, el('span', { className: 'price' }, `${runePrice(rune)} gold`), () =>
+      const button = runeChoice(rune, el('span', { className: 'price' }, t('price', { n: runePrice(rune) })), () =>
         dispatch({ type: 'buyRune', index }),
       )
       button.disabled = run.gold < runePrice(rune)
@@ -348,7 +354,7 @@ const renderMarket = () => {
   )
   $('market-marks').replaceChildren(
     ...offer.marks.map(key => {
-      const button = markChoice(key, el('span', { className: 'price' }, `${markPrice} gold`), () =>
+      const button = markChoice(key, el('span', { className: 'price' }, t('price', { n: markPrice })), () =>
         dispatch({ type: 'buyMark', key }),
       )
       button.disabled = run.gold < markPrice
@@ -356,15 +362,13 @@ const renderMarket = () => {
     }),
   )
   const canRemove = !offer.removed && run.gold >= removePrice && run.bag.length > minBag
-  $('remove-label').textContent = offer.removed
-    ? 'The scraper is worn for tonight'
-    : `Scrape a rune from your inkwell · ${removePrice} gold`
+  $('remove-label').textContent = offer.removed ? t('scraperWorn') : t('scrape', { n: removePrice })
   $('market-remove').replaceChildren(
     ...run.bag.map(rune =>
       runeChip(rune, {
         type: 'button',
         disabled: !canRemove,
-        ariaLabel: `Remove ${runeText(rune)}`,
+        ariaLabel: t('remove', { rune: runeText(rune) }),
         onclick: () => dispatch({ type: 'remove', id: rune.id }),
       }),
     ),
@@ -373,7 +377,7 @@ const renderMarket = () => {
 }
 
 const renderRest = () => {
-  $('rest-heal').textContent = `Sleep: heal ${Math.ceil(run.maxHp * 0.3)} (${run.hp}/${run.maxHp})`
+  $('rest-heal').textContent = t('sleep', { n: Math.ceil(run.maxHp * 0.3), hp: run.hp, max: run.maxHp })
   $('rest-runes').replaceChildren(
     ...run.offer.upgrades.map(id => {
       const rune = run.bag.find(r => r.id === id)
@@ -386,7 +390,7 @@ const renderRest = () => {
 }
 
 const renderShrine = () => {
-  const shrine = shrines[run.offer.shrine]
+  const shrine = local('shrines', run.offer.shrine)
   $('shrine-name').textContent = shrine.name
   $('shrine-text').textContent = shrine.text
   $('shrine-options').replaceChildren(
@@ -408,36 +412,38 @@ const renderShrine = () => {
 const guideRows = rows => rows.map(([term, meaning]) => el('div', {}, el('dt', {}, term), el('dd', {}, meaning)))
 
 const openCodex = () => {
-  $('codex-tiers').replaceChildren(...guideRows(glyphTiers))
-  $('codex-inks').replaceChildren(...guideRows(Object.values(inks).map(ink => [ink.name, ink.does])))
-  $('codex-intents').replaceChildren(...guideRows(intentGuide))
+  $('codex-tiers').replaceChildren(...guideRows(guide('glyphTiers')))
+  $('codex-inks').replaceChildren(
+    ...guideRows(Object.keys(inks).map(key => [local('inks', key).name, local('inks', key).does])),
+  )
+  $('codex-intents').replaceChildren(...guideRows(guide('intentGuide')))
   $('codex-marks').replaceChildren(
     ...(run.marks.length
-      ? guideRows(run.marks.map(key => [marginalia[key].name, marginalia[key].text]))
-      : [el('p', {}, 'None yet.')]),
+      ? guideRows(run.marks.map(key => [local('marginalia', key).name, local('marginalia', key).text]))
+      : [el('p', {}, t('noneYet'))]),
   )
   $('codex').showModal()
 }
 
 const renderEnd = () => {
   const won = run.screen === 'victory'
-  $('end-title').textContent = won ? 'The coast remembers' : 'Unwritten'
+  $('end-title').textContent = won ? t('remembered') : t('unwritten')
   $('end-text').textContent = won
-    ? 'The lamp is lit again. The names of the coast hold until the next night.'
-    : `The sea took you in ${acts[run.actIndex].name}, floor ${run.floor + 1}.`
+    ? t('wonText')
+    : t('lostText', { act: local('acts', run.actIndex).name, floor: run.floor + 1 })
   const best = run.stats.best
   meta = saveMeta(recordDaily(bank(meta, run), run))
   renderShare($('end-share'), meta.daily?.date === run.daily ? meta.daily : null)
   $('end-stats').replaceChildren(
-    el('dt', {}, 'Fights won'),
+    el('dt', {}, t('fightsWon')),
     el('dd', {}, `${run.stats.fights - (won ? 0 : 1)}`),
-    el('dt', {}, 'Glyphs written'),
+    el('dt', {}, t('glyphsWritten')),
     el('dd', {}, `${run.stats.strokes}`),
-    el('dt', {}, 'Greatest glyph'),
-    el('dd', {}, best ? `${best.name}, ${best.damage}` : 'none'),
-    el('dt', {}, 'Inkwell'),
-    el('dd', {}, `${run.bag.length} runes, ${run.marks.length} marginalia`),
-    el('dt', {}, 'Lamplight earned'),
+    el('dt', {}, t('greatestGlyph')),
+    el('dd', {}, bestText(best)),
+    el('dt', {}, t('inkwell')),
+    el('dd', {}, t('inkwellValue', { runes: run.bag.length, marks: run.marks.length })),
+    el('dt', {}, t('lamplightEarned')),
     el('dd', {}, `${lamplightEarned(run)}`),
   )
   show('end')
@@ -518,10 +524,36 @@ window.addEventListener('resize', () => {
   if (run?.screen === 'map') drawRoutes($('links'), $('floors'), run)
 })
 
-$('mute').onclick = () => {
-  setMuted(!isMuted())
-  renderMute()
+const renderSettings = () => {
+  const { sound, music, language } = settings()
+  $('setting-sound').checked = sound
+  $('setting-music').checked = music
+  $(`language-${language}`).checked = true
 }
+
+const openSettings = () => {
+  renderSettings()
+  $('settings').showModal()
+}
+
+$('open-settings').onclick = openSettings
+$('map-settings').onclick = openSettings
+$('combat-settings').onclick = openSettings
+$('setting-sound').onchange = event => updateSettings({ sound: event.target.checked })
+$('setting-music').onchange = event => updateSettings({ music: event.target.checked })
+for (const option of document.querySelectorAll('input[name="language"]')) {
+  option.onchange = () => updateSettings({ language: option.value })
+}
+
+onSettings(() => {
+  syncMusic()
+  applyStatic(document)
+  if ($('title').hidden) render()
+  else renderTitle()
+})
+
+document.addEventListener('pointerdown', syncMusic, { once: true })
+document.addEventListener('keydown', syncMusic, { once: true })
 $('new-run').onclick = beginRun
 $('map-codex').onclick = openCodex
 $('combat-codex').onclick = openCodex
@@ -539,6 +571,7 @@ const frame = () => {
   requestAnimationFrame(frame)
 }
 
+applyStatic(document)
 renderTitle()
 requestAnimationFrame(frame)
 

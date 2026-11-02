@@ -1,20 +1,15 @@
-import { loadMuted, saveMuted } from './store.js'
+import { settings } from './settings.js'
 
 let context = null
-let muted = loadMuted()
 
-export const isMuted = () => muted
-
-export const setMuted = value => {
-  muted = saveMuted(value)
-}
-
-const audio = () => {
-  if (muted || !globalThis.AudioContext) return null
+export const audioContext = () => {
+  if (!globalThis.AudioContext) return null
   context ??= new AudioContext()
   if (context.state === 'suspended') context.resume()
   return context
 }
+
+const audio = () => (settings().sound ? audioContext() : null)
 
 const tone = ({ from, to = from, duration, type = 'sine', volume = 0.15, delay = 0 }) => {
   const ctx = audio()
@@ -52,7 +47,7 @@ const noise = ({ duration, band, volume = 0.1, delay = 0 }) => {
 }
 
 const buzz = pattern => {
-  if (!muted) globalThis.navigator?.vibrate?.(pattern)
+  if (settings().sound) globalThis.navigator?.vibrate?.(pattern)
 }
 
 export const scratch = length => noise({ duration: 0.05, band: 1600 + length * 300, volume: 0.12 })

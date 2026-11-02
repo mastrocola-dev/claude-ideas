@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { enemies } from '../src/core/data.js'
-import { defeat, eventSounds, isMuted, playEvent, scratch, setMuted, victory } from '../src/ui/sound.js'
+import { isPlaying, setMood, syncMusic } from '../src/ui/music.js'
+import { settings, updateSettings } from '../src/ui/settings.js'
+import { defeat, eventSounds, playEvent, scratch, victory } from '../src/ui/sound.js'
 
 test('every foe intent has a sound', () => {
   for (const { intents } of Object.values(enemies)) {
@@ -19,9 +21,17 @@ test('nothing plays and nothing throws without an audio context', () => {
   for (const kind of Object.keys(eventSounds)) playEvent({ kind })
 })
 
-test('mute is remembered within the session', () => {
-  setMuted(true)
-  assert.equal(isMuted(), true)
-  setMuted(false)
-  assert.equal(isMuted(), false)
+test('sound, music and language are kept within the session', () => {
+  updateSettings({ sound: false, music: false, language: 'pt' })
+  assert.deepEqual(settings(), { sound: false, music: false, language: 'pt' })
+  updateSettings({ language: 'klingon' })
+  assert.equal(settings().language, 'pt')
+  updateSettings({ sound: true, music: true, language: 'en' })
+})
+
+test('music stays silent without an audio context', () => {
+  syncMusic()
+  setMood('fight')
+  setMood('calm')
+  assert.equal(isPlaying(), false)
 })

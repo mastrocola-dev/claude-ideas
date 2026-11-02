@@ -16,20 +16,20 @@
   </head>
   <body>
     <section id="title" class="screen center">
-      <p class="eyebrow">A roguelike of tides and ink</p>
+      <p class="eyebrow" data-i18n="eyebrow">A roguelike of tides and ink</p>
       <h1 class="logo">Saltscript</h1>
-      <p class="lede">The tide is unwriting the coast. You are the last scribe of the lighthouse. Write it back.</p>
-      <button type="button" id="continue" class="primary" hidden>Continue the night</button>
-      <button type="button" id="new-run" class="primary">Begin a new night</button>
+      <p class="lede" data-i18n="lede">The tide is unwriting the coast. You are the last scribe of the lighthouse. Write it back.</p>
+      <button type="button" id="continue" class="primary" hidden data-i18n="continue">Continue the night</button>
+      <button type="button" id="new-run" class="primary" data-i18n="newRun">Begin a new night</button>
       <button type="button" id="daily" class="secondary"></button>
-      <button type="button" id="daily-share" class="ghost" hidden>Share today's Tide</button>
-      <button type="button" id="mute" class="ghost"></button>
+      <button type="button" id="daily-share" class="ghost" hidden data-i18n="dailyShare">Share today's Tide</button>
+      <button type="button" id="open-settings" class="ghost" data-i18n="settings">Settings</button>
       <div id="meta" class="meta" hidden>
         <p id="lamplight" class="label"></p>
         <div id="scribes" class="stack" hidden></div>
         <div id="unlocks" class="choices"></div>
       </div>
-      <p class="how">Swipe across three or more touching runes to write a glyph, or tap them in order and press Write. One ink makes a Seal. Brine and Ember wound, Ember burns, Moss wards.</p>
+      <p class="how" data-i18n="how">Swipe across three or more touching runes to write a glyph, or tap them in order and press Write. One ink makes a Seal. Brine and Ember wound, Ember burns, Moss wards.</p>
     </section>
 
     <section id="map" class="screen" hidden>
@@ -40,16 +40,19 @@
         <ol id="floors" class="floors"></ol>
       </div>
       <details class="inkwell">
-        <summary>Inkwell and marginalia</summary>
+        <summary data-i18n="inkwellSummary">Inkwell and marginalia</summary>
         <div id="inkwell"></div>
       </details>
-      <button type="button" id="map-codex" class="ghost">Open the codex</button>
+      <div class="row-actions">
+        <button type="button" id="map-codex" class="ghost" data-i18n="openCodex">Open the codex</button>
+        <button type="button" id="map-settings" class="ghost gear" data-i18n-label="settings" aria-label="Settings">⚙</button>
+      </div>
     </section>
 
     <section id="combat" class="screen" hidden>
       <article id="foe" class="foe">
         <div class="foe-head">
-          <h2 id="foe-name">Foe</h2>
+          <h2 id="foe-name" data-i18n="foe">Foe</h2>
           <span id="intent" class="intent"></span>
         </div>
         <div class="meter foe-meter"><span id="foe-hp-fill"></span><b id="foe-hp"></b></div>
@@ -59,49 +62,50 @@
       </article>
       <p id="hint" class="hint" hidden></p>
       <div class="slate">
-        <p id="preview" class="preview">Trace three or more touching runes</p>
-        <button type="button" id="combat-codex" class="codex-open" aria-label="Open the codex">?</button>
+        <p id="preview" class="preview" data-i18n="traceHint">Trace three or more touching runes</p>
+        <button type="button" id="combat-settings" class="codex-open" data-i18n-label="settings" aria-label="Settings">⚙</button>
+        <button type="button" id="combat-codex" class="codex-open" data-i18n-label="openCodex" aria-label="Open the codex">?</button>
       </div>
-      <canvas id="board" aria-label="Rune board"></canvas>
+      <canvas id="board" data-i18n-label="runeBoard" aria-label="Rune board"></canvas>
       <footer id="you" class="player">
         <div class="floats" aria-hidden="true"></div>
         <div class="meter you-meter"><span id="you-hp-fill"></span><b id="you-hp"></b></div>
         <div class="player-row">
           <span id="ward" class="pill ward"></span>
           <span id="strokes" class="strokes"></span>
-          <button type="button" id="end-turn" class="secondary small">End turn</button>
-          <button type="button" id="write" class="primary small" hidden>Write</button>
+          <button type="button" id="end-turn" class="secondary small" data-i18n="endTurn">End turn</button>
+          <button type="button" id="write" class="primary small" hidden data-i18n="write">Write</button>
         </div>
         <ul id="marks-row" class="marks-row"></ul>
       </footer>
     </section>
 
     <section id="reward" class="screen" hidden>
-      <h2 class="screen-title">The ink settles</h2>
+      <h2 class="screen-title" data-i18n="inkSettles">The ink settles</h2>
       <p id="reward-gold" class="lede"></p>
       <div id="reward-marks" class="choices"></div>
-      <p class="label">Add one rune to your inkwell</p>
+      <p class="label" data-i18n="addRune">Add one rune to your inkwell</p>
       <div id="reward-runes" class="choices"></div>
-      <button type="button" id="reward-skip" class="ghost">Take nothing</button>
+      <button type="button" id="reward-skip" class="ghost" data-i18n="takeNothing">Take nothing</button>
     </section>
 
     <section id="market" class="screen" hidden>
       <header class="bar" id="market-bar"></header>
-      <h2 class="screen-title">The Wrack Market</h2>
-      <p class="label">Runes</p>
+      <h2 class="screen-title" data-i18n="marketTitle">The Wrack Market</h2>
+      <p class="label" data-i18n="runes">Runes</p>
       <div id="market-runes" class="choices"></div>
-      <p class="label">Marginalia</p>
+      <p class="label" data-i18n="marginalia">Marginalia</p>
       <div id="market-marks" class="choices"></div>
       <p class="label" id="remove-label"></p>
       <div id="market-remove" class="bag"></div>
-      <button type="button" id="market-leave" class="primary">Back to the road</button>
+      <button type="button" id="market-leave" class="primary" data-i18n="backToRoad">Back to the road</button>
     </section>
 
     <section id="rest" class="screen" hidden>
-      <h2 class="screen-title">A dry cave</h2>
-      <p class="lede">Rest your hand, or recut one rune deeper.</p>
+      <h2 class="screen-title" data-i18n="restTitle">A dry cave</h2>
+      <p class="lede" data-i18n="restLede">Rest your hand, or recut one rune deeper.</p>
       <button type="button" id="rest-heal" class="primary"></button>
-      <p class="label">Upgrade one rune</p>
+      <p class="label" data-i18n="upgradeOne">Upgrade one rune</p>
       <div id="rest-runes" class="choices"></div>
     </section>
 
@@ -115,22 +119,40 @@
       <h2 id="end-title" class="logo small">The night ends</h2>
       <p id="end-text" class="lede"></p>
       <dl id="end-stats" class="stats"></dl>
-      <button type="button" id="end-share" class="secondary" hidden>Share today's Tide</button>
-      <button type="button" id="end-new" class="primary">Begin a new night</button>
-      <button type="button" id="end-title-screen" class="ghost">Back to the lighthouse</button>
+      <button type="button" id="end-share" class="secondary" hidden data-i18n="dailyShare">Share today's Tide</button>
+      <button type="button" id="end-new" class="primary" data-i18n="newRun">Begin a new night</button>
+      <button type="button" id="end-title-screen" class="ghost" data-i18n="backToLighthouse">Back to the lighthouse</button>
     </section>
 
     <dialog id="codex" class="codex">
-      <h2 class="screen-title" tabindex="-1" autofocus>The Codex</h2>
-      <p class="label">Glyphs</p>
+      <h2 class="screen-title" tabindex="-1" autofocus data-i18n="codexTitle">The Codex</h2>
+      <p class="label" data-i18n="glyphs">Glyphs</p>
       <dl id="codex-tiers" class="guide"></dl>
-      <p class="label">Inks</p>
+      <p class="label" data-i18n="inks">Inks</p>
       <dl id="codex-inks" class="guide"></dl>
-      <p class="label">Intents</p>
+      <p class="label" data-i18n="intents">Intents</p>
       <dl id="codex-intents" class="guide"></dl>
-      <p class="label">Your marginalia</p>
+      <p class="label" data-i18n="yourMarks">Your marginalia</p>
       <dl id="codex-marks" class="guide"></dl>
-      <form method="dialog"><button type="submit" id="codex-close" class="primary">Close the book</button></form>
+      <form method="dialog"><button type="submit" id="codex-close" class="primary" data-i18n="closeBook">Close the book</button></form>
+    </dialog>
+
+    <dialog id="settings" class="codex settings">
+      <h2 class="screen-title" tabindex="-1" autofocus data-i18n="settingsTitle">Settings</h2>
+      <label class="toggle">
+        <span><strong data-i18n="soundEffects">Sound effects</strong><small data-i18n="soundEffectsHint">Quill, stamps, wounds and vibration</small></span>
+        <input type="checkbox" id="setting-sound"/>
+      </label>
+      <label class="toggle">
+        <span><strong data-i18n="music">Music</strong><small data-i18n="musicHint">Sea, drones and bells</small></span>
+        <input type="checkbox" id="setting-music"/>
+      </label>
+      <fieldset class="languages">
+        <legend class="label" data-i18n="language">Language</legend>
+        <label><input type="radio" name="language" id="language-en" value="en" /> English</label>
+        <label><input type="radio" name="language" id="language-pt" value="pt" /> Português</label>
+      </fieldset>
+      <form method="dialog"><button type="submit" id="settings-close" class="primary" data-i18n="done">Done</button></form>
     </dialog>
 
     <script type="module" src="src/main.js"></script>

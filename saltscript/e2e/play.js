@@ -14,7 +14,12 @@ mkdirSync(shots, { recursive: true })
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM ?? '/opt/pw-browsers/chromium-1243/chrome-linux64/chrome',
 })
-const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true })
+const page = await browser.newPage({
+  viewport: { width: 390, height: 844 },
+  deviceScaleFactor: 2,
+  hasTouch: true,
+  locale: 'en-US',
+})
 await page.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort())
 const errors = []
 page.on('pageerror', error => errors.push(error.message))
@@ -62,11 +67,27 @@ const foeSettled = () =>
 try {
   await page.goto(`http://localhost:${port}/`)
   await page.screenshot({ path: `${shots}title.png` })
-  assert.equal(await page.textContent('#mute'), 'Sound on')
-  await page.click('#mute')
+  await page.click('#open-settings')
+  await audit('settings')
+  assert.equal(await page.isChecked('#setting-sound'), true)
+  assert.equal(await page.isChecked('#setting-music'), true)
+  await page.click('#setting-sound')
+  await page.click('#setting-music')
+  await page.click('#language-pt')
+  assert.equal(await page.textContent('#new-run'), 'Começar uma nova noite')
+  await page.screenshot({ path: `${shots}settings.png` })
+  await page.click('#settings-close')
   await page.reload()
-  assert.equal(await page.textContent('#mute'), 'Sound off')
-  await page.click('#mute')
+  assert.equal(await page.textContent('#new-run'), 'Começar uma nova noite')
+  assert.equal(await page.getAttribute('html', 'lang'), 'pt-BR')
+  await page.click('#open-settings')
+  assert.equal(await page.isChecked('#setting-sound'), false)
+  assert.equal(await page.isChecked('#setting-music'), false)
+  await page.click('#setting-sound')
+  await page.click('#setting-music')
+  await page.click('#language-en')
+  await page.click('#settings-close')
+  assert.equal(await page.textContent('#new-run'), 'Begin a new night')
   await page.click('#new-run')
   await page.screenshot({ path: `${shots}map.png` })
   const firstFloorLinks = await page.evaluate(() =>
@@ -79,6 +100,17 @@ try {
   await page.click('.node.open >> nth=0')
   assert.equal(await screen(), 'combat')
   assert.equal(await page.locator('#hint').isVisible(), true)
+  const foeName = await page.textContent('#foe-name')
+  await page.click('#combat-settings')
+  await page.click('#language-pt')
+  await page.click('#settings-close')
+  assert.notEqual(await page.textContent('#foe-name'), foeName)
+  assert.equal(await page.textContent('#end-turn'), 'Encerrar turno')
+  await page.screenshot({ path: `${shots}combat-pt.png` })
+  await page.click('#combat-settings')
+  await page.click('#language-en')
+  await page.click('#settings-close')
+  assert.equal(await page.textContent('#foe-name'), foeName)
   await page.click('#combat-codex')
   assert.match(await page.textContent('#codex-tiers'), /Canticle/)
   await page.screenshot({ path: `${shots}codex.png` })

@@ -31,11 +31,18 @@ export const recordDaily = (meta, run) => {
   return { ...meta, daily: { date: run.daily, result } }
 }
 
-export const shareText = (date, { won, act, floor, best, inks }) =>
+const english = {
+  title: date => `Saltscript Daily Tide ${date}`,
+  won: 'The coast remembers',
+  place: (act, floor) => `${acts[act].name}, floor ${floor}`,
+  best: best => `Greatest glyph: ${best ? `${best.name}, ${best.damage}` : 'none'}`,
+}
+
+export const shareText = (date, { won, act, floor, best, inks }, words = english) =>
   [
-    `Saltscript Daily Tide ${date}`,
-    won ? 'The coast remembers' : `${acts[act].name}, floor ${floor}`,
-    `Greatest glyph: ${best ? `${best.name}, ${best.damage}` : 'none'}`,
+    words.title(date),
+    won ? words.won : words.place(act, floor),
+    words.best(best),
     inks
       .slice(-rowLength)
       .map(ink => inkMarks[ink])

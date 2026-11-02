@@ -1,3 +1,4 @@
+import { glyphName, t } from './i18n.js'
 import { defeat, playEvent, victory } from './sound.js'
 
 const float = (host, text, tone) => {
@@ -22,34 +23,34 @@ const flourish = name => {
 }
 
 const reactions = {
-  ward: ({ foe }, { value }) => float(foe, `+${value} ward`, 'ward'),
-  rise: ({ foe }, { value }) => float(foe, `+${value} swell`, 'wound'),
-  salt: ({ foe }, { value }) => float(foe, `${value} salted`, 'salt'),
-  smudge: ({ foe }, { value }) => float(foe, `${value} smudged`, 'salt'),
-  undertow: ({ foe }) => float(foe, 'undertow', 'salt'),
+  ward: ({ foe }, { value }) => float(foe, t('plusWard', { n: value }), 'ward'),
+  rise: ({ foe }, { value }) => float(foe, t('plusSwell', { n: value }), 'wound'),
+  salt: ({ foe }, { value }) => float(foe, t('salted', { n: value }), 'salt'),
+  smudge: ({ foe }, { value }) => float(foe, t('smudged', { n: value }), 'salt'),
+  undertow: ({ foe }) => float(foe, t('undertowFloat'), 'salt'),
   burn: ({ foe }, { value }) => {
-    float(foe, `−${value} burn`, 'burn')
+    float(foe, t('minusBurn', { n: value }), 'burn')
     shake(foe)
   },
   attack: ({ you, before, after }, { value }) => {
     const lost = before.hp - after.hp
     if (lost) {
-      float(you, `−${lost} health`, 'wound')
+      float(you, t('minusHealth', { n: lost }), 'wound')
       shake(you)
     }
-    if (value > lost) float(you, `${value - lost} warded`, 'ward')
+    if (value > lost) float(you, t('warded', { n: value - lost }), 'ward')
   },
   glyph: ({ foe, you, before, after }, { glyph }) => {
     const lost = before.enemy.hp - after.enemy.hp
     const blocked = glyph.damage - lost
-    flourish(glyph.name)
+    flourish(glyphName(glyph))
     if (lost) {
-      float(foe, `−${lost} wound`, 'wound')
+      float(foe, t('minusWound', { n: lost }), 'wound')
       shake(foe)
     }
-    if (blocked > 0 && after.enemy.hp > 0) float(foe, `${blocked} warded`, 'ward')
-    if (glyph.burn) float(foe, `+${glyph.burn} burn`, 'burn')
-    if (glyph.ward) float(you, `+${glyph.ward} ward`, 'ward')
+    if (blocked > 0 && after.enemy.hp > 0) float(foe, t('warded', { n: blocked }), 'ward')
+    if (glyph.burn) float(foe, t('plusBurn', { n: glyph.burn }), 'burn')
+    if (glyph.ward) float(you, t('plusWard', { n: glyph.ward }), 'ward')
   },
 }
 

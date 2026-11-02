@@ -1,4 +1,4 @@
-const shellCache = 'saltscript-shell-v1'
+const shellCache = 'saltscript-shell-v2'
 const fontCache = 'saltscript-fonts-v1'
 const shell = [
   './',
@@ -15,7 +15,12 @@ const shell = [
   'src/core/run.js',
   'src/ui/board.js',
   'src/ui/feedback.js',
+  'src/ui/i18n.js',
+  'src/ui/locales/en.js',
+  'src/ui/locales/pt.js',
+  'src/ui/music.js',
   'src/ui/routes.js',
+  'src/ui/settings.js',
   'src/ui/sound.js',
   'src/ui/store.js',
   'src/ui/style.css',

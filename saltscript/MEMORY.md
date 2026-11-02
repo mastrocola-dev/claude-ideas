@@ -27,3 +27,7 @@ Rewritten by each run; keep it short.
 - Input: a press without a swipe is a tap that keeps the path, and `#write` replaces End turn once 3 runes are held; `window.saltscript.play(run)` forces any screen for e2e audits
 - Gate each commit on real exit codes, never a `tail` of `npm run check`: S11 and S12 went out with a lint error that way
 - Backlog items can ask for edits outside `saltscript/`; the rule wins, so record them under **Needs author**
+- Settings live in `src/ui/settings.js` (`saltscript.settings`: `sound`, `music`, `language`); `onSettings` re-renders, re-syncs music and reapplies static text
+- Every visible string goes through `t(key)` from `src/ui/i18n.js`; content names come from `local(section, key)`, glyph names from `glyphName(glyph)`, never `glyph.name`; static HTML uses `data-i18n` and `data-i18n-label`
+- A new string or content key needs `src/ui/locales/en.js` and `pt.js` (or a `pt` overlay for `data.js` content); `test/i18n.test.js` enforces both and matching placeholders
+- `src/ui/music.js` is generative WebAudio (sea noise, two drones, bells); `show()` sets mood `calm` or `fight`; it starts on the first pointer or key press

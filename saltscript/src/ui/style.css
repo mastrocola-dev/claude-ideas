@@ -697,6 +697,7 @@ button.rune {
   width: 44px;
   height: 44px;
   border-radius: 50%;
+  background: none;
   color: var(--mist);
   font-size: 20px;
 }
@@ -737,4 +738,137 @@ button.rune {
 .you-meter b {
   color: #0f1f28;
   text-shadow: none;
+}
+
+#combat-settings {
+  right: auto;
+  left: 0;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gear {
+  font-size: 20px;
+}
+
+.settings {
+  display: grid;
+  gap: 14px;
+}
+
+.settings:not([open]) {
+  display: none;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--abyss);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.toggle strong,
+.toggle small {
+  display: block;
+}
+
+.toggle small {
+  color: var(--mist);
+  font-size: 14px;
+}
+
+.toggle input {
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 30px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--kelp);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle input::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--mist);
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+
+.toggle input:checked {
+  background: color-mix(in srgb, var(--lamp) 45%, var(--deep));
+}
+
+.toggle input:checked::after {
+  transform: translateX(22px);
+  background: var(--lamp);
+}
+
+.toggle input:focus-visible,
+.languages input:focus-visible {
+  outline: 2px solid var(--lamp);
+  outline-offset: 3px;
+}
+
+.languages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.languages legend {
+  margin-bottom: 8px;
+}
+
+.languages label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--abyss);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.languages label:has(input:checked) {
+  border-color: var(--lamp);
+  box-shadow: 0 0 0 1px var(--lamp);
+}
+
+.languages input {
+  accent-color: var(--lamp);
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle input,
+  .toggle input::after {
+    transition: none;
+  }
 }
