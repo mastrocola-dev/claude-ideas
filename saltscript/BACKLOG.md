@@ -31,6 +31,7 @@ Empty.
 - S13 Accessibility: axe on every screen, tap and Write input, an ink shape on every rune (2026-11-02)
 - S14 Showcase: `README.md` with pitch, how to play, how to run and screenshots; root table left to the author (2026-11-02)
 - S15 Settings: sound effects, generative music and English or Portuguese, from title, map and combat (2026-11-02, built in the conversation)
+- S16 One ink per stroke: closes the zigzag-through-everything exploit (100% wins), mult = runes − 2, pages always hold a stroke, enemies retuned (2026-11-02, built in the conversation)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

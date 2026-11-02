@@ -112,7 +112,7 @@ try {
   await page.click('#settings-close')
   assert.equal(await page.textContent('#foe-name'), foeName)
   await page.click('#combat-codex')
-  assert.match(await page.textContent('#codex-tiers'), /Canticle/)
+  assert.match(await page.textContent('#codex-tiers'), /One ink per stroke/)
   await page.screenshot({ path: `${shots}codex.png` })
   await page.click('#codex-close')
   let shot = false

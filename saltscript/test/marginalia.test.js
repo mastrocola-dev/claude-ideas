@@ -14,15 +14,19 @@ test('every marginalia has a rarity', () => {
   assert.ok(Object.keys(marginalia).length >= 17)
 })
 
-test('Cinder Chant needs two Ember runes', () => {
-  const two = [rune('ember'), rune('ember'), rune('moss')]
-  const one = [rune('ember'), rune('brine'), rune('moss')]
-  assert.equal(readGlyph(two, ['cinderChant']).mult, 2)
-  assert.equal(readGlyph(one, ['cinderChant']).mult, 1)
+test('Cinder Chant rewards Ember strokes only', () => {
+  assert.equal(readGlyph(Array(3).fill(rune('ember')), ['cinderChant']).mult, 2)
+  assert.equal(readGlyph(brine(3), ['cinderChant']).mult, 1)
+})
+
+test('Tidal Gloss and Vespers reward their own ink', () => {
+  assert.equal(readGlyph(brine(3), ['tidalGloss']).mult, 3)
+  assert.equal(readGlyph(Array(3).fill(rune('moss')), ['vespers']).mult, 3)
+  assert.equal(readGlyph(brine(3), ['vespers']).mult, 1)
 })
 
 test('Short Hand rewards exactly three runes', () => {
-  assert.equal(readGlyph(brine(3), ['shortHand']).mult, 4)
+  assert.equal(readGlyph(brine(3), ['shortHand']).mult, 3)
   assert.equal(readGlyph(brine(4), ['shortHand']).mult, 2)
 })
 
@@ -37,8 +41,8 @@ test('Moss Edge makes moss wound as well as ward', () => {
   const moss = Array(3).fill(rune('moss', 2))
   assert.equal(readGlyph(moss, []).damage, 0)
   const glyph = readGlyph(moss, ['mossEdge'])
-  assert.equal(glyph.damage, 12)
-  assert.equal(glyph.ward, 12)
+  assert.equal(glyph.damage, 6)
+  assert.equal(glyph.ward, 6)
 })
 
 test('Salted Tongue counts salt in the stroke', () => {
@@ -47,8 +51,8 @@ test('Salted Tongue counts salt in the stroke', () => {
 })
 
 test('Full Inkwell scales with the bag', () => {
-  assert.equal(readGlyph(brine(3), ['fullInkwell'], 14).mult, 2)
-  assert.equal(readGlyph(brine(3), ['fullInkwell'], 30).mult, 4)
+  assert.equal(readGlyph(brine(3), ['fullInkwell'], 14).mult, 1)
+  assert.equal(readGlyph(brine(3), ['fullInkwell'], 30).mult, 3)
 })
 
 test('Undying Ember keeps burn from fading', () => {
@@ -59,8 +63,8 @@ test('Undying Ember keeps burn from fading', () => {
 })
 
 test('Lean Hand pays for a thin inkwell', () => {
-  assert.equal(readGlyph(brine(3), ['leanHand'], 18).mult, 5)
-  assert.equal(readGlyph(brine(3), ['leanHand'], 19).mult, 2)
+  assert.equal(readGlyph(brine(3), ['leanHand'], 18).mult, 4)
+  assert.equal(readGlyph(brine(3), ['leanHand'], 19).mult, 1)
 })
 
 test('the combat records the bag size for bag builds', () => {

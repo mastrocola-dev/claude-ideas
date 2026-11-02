@@ -40,137 +40,137 @@ export const unlockCosts = { saltedTongue: 15, fullInkwell: 15, undyingEmber: 30
 export const enemies = {
   acolyte: {
     name: 'Drowned Acolyte',
-    hp: 60,
+    hp: 105,
     intents: [
-      ['attack', 13],
-      ['attack', 11],
-      ['ward', 12],
+      ['attack', 17],
+      ['attack', 14],
+      ['ward', 16],
     ],
   },
   hound: {
     name: 'Brine Hound',
-    hp: 46,
+    hp: 80,
     intents: [
-      ['attack', 9],
-      ['attack', 9],
-      ['attack', 18],
+      ['attack', 12],
+      ['attack', 12],
+      ['attack', 23],
     ],
   },
   wraith: {
     name: 'Salt Wraith',
-    hp: 64,
+    hp: 112,
     intents: [
       ['salt', 3],
-      ['attack', 15],
+      ['attack', 20],
     ],
   },
   eel: {
     name: 'Lantern Eel',
-    hp: 72,
+    hp: 126,
     intents: [
       ['rise', 4],
-      ['attack', 10],
-      ['attack', 10],
+      ['attack', 13],
+      ['attack', 13],
     ],
   },
   choirmother: {
     name: 'The Choirmother',
-    hp: 110,
+    hp: 192,
     intents: [
       ['salt', 4],
-      ['attack', 20],
-      ['ward', 18],
       ['attack', 26],
+      ['ward', 23],
+      ['attack', 34],
     ],
   },
   tide: {
     name: 'The Unwriting Tide',
-    hp: 125,
+    hp: 219,
     intents: [
-      ['attack', 18],
+      ['attack', 23],
       ['salt', 5],
       ['rise', 4],
-      ['attack', 26],
-      ['ward', 25],
+      ['attack', 34],
+      ['ward', 32],
     ],
   },
   pewCrab: {
     name: 'Pew Crab',
-    hp: 80,
+    hp: 140,
     intents: [
-      ['attack', 16],
+      ['attack', 21],
       ['smudge', 2],
-      ['attack', 20],
+      ['attack', 26],
     ],
   },
   bellDiver: {
     name: 'Bell Diver',
-    hp: 90,
+    hp: 158,
     intents: [
       ['undertow', 1],
-      ['attack', 22],
-      ['ward', 20],
+      ['attack', 29],
+      ['ward', 26],
     ],
   },
   abbot: {
     name: 'The Blotted Abbot',
-    hp: 150,
+    hp: 262,
     intents: [
       ['smudge', 3],
-      ['attack', 26],
+      ['attack', 34],
       ['salt', 3],
-      ['attack', 30],
+      ['attack', 39],
     ],
   },
   organ: {
     name: 'The Drowned Organ',
-    hp: 210,
+    hp: 368,
     intents: [
       ['undertow', 1],
-      ['attack', 28],
+      ['attack', 36],
       ['smudge', 3],
       ['rise', 5],
-      ['attack', 34],
+      ['attack', 44],
     ],
   },
   wickMoth: {
     name: 'Wick Moth',
-    hp: 110,
+    hp: 192,
     intents: [
       ['smudge', 3],
-      ['attack', 26],
-      ['attack', 26],
+      ['attack', 34],
+      ['attack', 34],
     ],
   },
   lensShade: {
     name: 'Lens Shade',
-    hp: 125,
+    hp: 219,
     intents: [
-      ['ward', 26],
+      ['ward', 34],
       ['undertow', 1],
-      ['attack', 34],
+      ['attack', 44],
     ],
   },
   warden: {
     name: 'The Lens Warden',
-    hp: 200,
+    hp: 350,
     intents: [
       ['rise', 5],
-      ['attack', 30],
+      ['attack', 39],
       ['salt', 4],
-      ['attack', 38],
+      ['attack', 49],
     ],
   },
   keeper: {
     name: 'The Unlit Keeper',
-    hp: 300,
+    hp: 525,
     intents: [
       ['salt', 5],
-      ['attack', 36],
+      ['attack', 47],
       ['undertow', 1],
       ['smudge', 4],
-      ['attack', 46],
-      ['ward', 40],
+      ['attack', 60],
+      ['ward', 52],
     ],
   },
 }
@@ -203,21 +203,21 @@ export const marginalia = {
   tidalGloss: {
     name: 'Tidal Gloss',
     rarity: 'common',
-    text: 'Seals and Litanies of Brine gain +2 mult.',
+    text: 'Brine strokes gain +2 mult.',
     glyph: g => ({ mult: g.ink === 'brine' ? 2 : 0 }),
   },
   vespers: {
     name: 'Vespers',
     rarity: 'common',
-    text: 'Mixed strokes gain +1 mult.',
-    glyph: g => ({ mult: g.ink ? 0 : 1 }),
+    text: 'Moss strokes gain +2 mult.',
+    glyph: g => ({ mult: g.ink === 'moss' ? 2 : 0 }),
   },
   gildedEdge: { name: 'Gilded Edge', rarity: 'common', text: 'Gain 10 more gold after each fight.' },
   cinderChant: {
     name: 'Cinder Chant',
     rarity: 'common',
-    text: 'Strokes with two or more Ember runes gain +1 mult.',
-    glyph: g => ({ mult: g.count.ember >= 2 ? 1 : 0 }),
+    text: 'Ember strokes gain +1 mult.',
+    glyph: g => ({ mult: g.ink === 'ember' ? 1 : 0 }),
   },
   shortHand: {
     name: 'Short Hand',
@@ -242,7 +242,7 @@ export const marginalia = {
   saltwise: {
     name: 'Saltwise',
     rarity: 'uncommon',
-    text: 'Salt can be written through. It is worth 1 and never breaks a Seal.',
+    text: 'Salt can be written through and joins any ink. It is worth 1.',
   },
   mossEdge: { name: 'Moss Edge', rarity: 'uncommon', text: 'Moss runes wound as well as ward.' },
   saltedTongue: {
@@ -319,16 +319,16 @@ export const shrines = {
 }
 
 export const firstFightHints = [
-  'Swipe across three or more touching runes, in any of eight directions.',
-  'One ink makes a Seal, worth +1 mult. Brine and Ember wound, Moss wards.',
+  'Swipe across three or more touching runes of the same ink, in any of eight directions.',
+  'Every rune past the second adds +1 mult. Brine wounds, Ember wounds and burns, Moss wards.',
   'You write two strokes a turn, then the foe acts on the intent shown above.',
 ]
 
 export const glyphTiers = [
-  ['3 or 4 runes', '× 1 mult, a Line or Seal'],
-  ['5 or 6 runes', '× 2 mult, a Verse or Litany'],
-  ['7 or more runes', '× 3 mult, a Canticle or Litany'],
-  ['One ink only', '+1 mult'],
+  ['One ink per stroke', 'Only runes of the same ink link; Salt joins any ink with Saltwise'],
+  ['Mult', 'Runes in the stroke minus 2: three runes × 1, six runes × 4'],
+  ['Names', 'A Seal up to 4 runes, a Litany up to 6, a Canticle from 7'],
+  ['No stroke left', 'The page rewrites itself, so a stroke is always there'],
 ]
 
 export const intentGuide = [

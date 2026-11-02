@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { bestPath } from '../src/core/bot.js'
 import {
   canStartDaily,
   createDailyRun,
@@ -61,6 +62,6 @@ test('the share text carries date, floor, greatest glyph and ink row', () => {
 
 test('written strokes add to the ink row', () => {
   const run = act(createDailyRun('2026-11-02'), { type: 'choose', lane: 0 })
-  const next = act(run, { type: 'write', path: [0, 1, 2] })
+  const next = act(run, { type: 'write', path: bestPath(run.combat, 4) })
   assert.equal(next.stats.inks.length, 1)
 })

@@ -16,18 +16,52 @@ export const canWrite = (state, cell) => {
   return Boolean(rune) && (rune.ink !== 'salt' || has(state, 'saltwise'))
 }
 
+export const inkOf = (state, path) => path.map(cell => state.cells[cell].ink).find(ink => ink !== 'salt') ?? null
+
+const matches = (state, path, cell) => {
+  const ink = state.cells[cell].ink
+  const lead = inkOf(state, path)
+  return ink === 'salt' || !lead || ink === lead
+}
+
 export const canExtend = (state, path, cell) =>
-  canWrite(state, cell) && !path.includes(cell) && (!path.length || adjacent(path.at(-1), cell))
+  canWrite(state, cell) &&
+  !path.includes(cell) &&
+  (!path.length || adjacent(path.at(-1), cell)) &&
+  matches(state, path, cell)
 
 export const isValid = (state, path) =>
-  path.length >= 3 && path.every((cell, i) => canExtend(state, path.slice(0, i), cell))
+  path.length >= 3 && path.every((cell, i) => canExtend(state, path.slice(0, i), cell)) && Boolean(inkOf(state, path))
 
-const tierOf = length => (length >= 7 ? 3 : length >= 5 ? 2 : 1)
+export const multFor = length => length - 2
 
 const nameOf = (length, ink) => {
-  if (ink) return `${length >= 5 ? 'Litany' : 'Seal'} of ${ink[0].toUpperCase()}${ink.slice(1)}`
-  return length >= 7 ? 'Canticle' : length >= 5 ? 'Verse' : 'Line'
+  const title = length >= 7 ? 'Canticle' : length >= 5 ? 'Litany' : 'Seal'
+  return `${title} of ${ink[0].toUpperCase()}${ink.slice(1)}`
 }
+
+const reach = (state, ink, start, seen) => {
+  const group = [start]
+  seen.add(start)
+  for (let i = 0; i < group.length; i++) {
+    for (let next = 0; next < state.cells.length; next++) {
+      if (seen.has(next) || !adjacent(group[i], next) || !canWrite(state, next)) continue
+      const other = state.cells[next].ink
+      if (other !== ink && other !== 'salt') continue
+      seen.add(next)
+      group.push(next)
+    }
+  }
+  return group
+}
+
+export const hasStroke = state =>
+  ['brine', 'ember', 'moss'].some(ink => {
+    const seen = new Set()
+    return state.cells.some(
+      (rune, cell) => rune?.ink === ink && !seen.has(cell) && reach(state, ink, cell, seen).length >= 3,
+    )
+  })
 
 export const readGlyph = (runes, marks, bagSize = 0) => {
   const count = { brine: 0, ember: 0, moss: 0, salt: 0 }
@@ -36,11 +70,10 @@ export const readGlyph = (runes, marks, bagSize = 0) => {
     count[rune.ink] += 1
     chips[rune.ink] += rune.ink === 'salt' ? 1 : rune.value
   }
-  const used = ['brine', 'ember', 'moss'].filter(ink => count[ink])
-  const ink = used.length === 1 ? used[0] : null
+  const ink = ['brine', 'ember', 'moss'].find(key => count[key]) ?? 'salt'
   const length = runes.length
   const glyph = { length, ink, count, bagSize }
-  let mult = tierOf(length) + (ink ? 1 : 0)
+  let mult = multFor(length)
   let burn = count.ember
   for (const mark of marks) {
     const bonus = marginalia[mark].glyph?.(glyph) ?? {}
@@ -61,7 +94,7 @@ export const readGlyph = (runes, marks, bagSize = 0) => {
   }
 }
 
-const draw = state => {
+const refill = state => {
   const rand = rng(state.seed)
   let pile = state.pile
   let discard = state.discard
@@ -88,6 +121,33 @@ const draw = state => {
   }
   return { ...state, cells, pile, discard, seed: rand.state() }
 }
+
+const gather = cells => {
+  const best = ['brine', 'ember', 'moss']
+    .map(ink => cells.flatMap((rune, i) => (rune?.ink === ink ? [i] : [])))
+    .sort((a, b) => b.length - a.length)[0]
+  if (best.length < 3) return cells
+  const gathered = [...cells]
+  for (const [slot, from] of best.slice(0, 3).entries()) {
+    ;[gathered[slot], gathered[from]] = [gathered[from], gathered[slot]]
+  }
+  return gathered
+}
+
+const rewriteAttempts = 12
+
+const settle = state => {
+  if (hasStroke(state)) return state
+  let next = state
+  for (let attempt = 0; attempt < rewriteAttempts && !hasStroke(next); attempt++) {
+    const runes = next.cells.filter(rune => rune && rune.ink !== 'salt')
+    next = refill({ ...next, cells: next.cells.map(() => null), discard: [...next.discard, ...runes] })
+  }
+  if (!hasStroke(next)) next = { ...next, cells: gather(next.cells) }
+  return { ...next, events: [...(next.events ?? []), { kind: 'rewrite' }] }
+}
+
+const draw = state => settle(refill(state))
 
 export const intentOf = state => {
   const { intents } = enemies[state.enemy.key]

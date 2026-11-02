@@ -4,9 +4,10 @@ Rewritten by each run; keep it short.
 
 - `src/core/run.js` holds the run reducer `act(run, action)`; screens are `map`, `combat`, `reward`, `market`, `rest`, `shrine`, `victory`, `defeat`
 - `src/core/combat.js`: 4×5 `cells` (index = row × 4 + column), `pile` and `discard` hold rune objects `{id, ink, value}`; salt cells are `{ink: 'salt', ttl}` and never enter the bag
+- One ink per stroke: `canExtend` and `isValid` enforce it (Salt is wild only with Saltwise); mult is `multFor(length)` = runes − 2; `draw` ends in `settle`, which rewrites the page until `hasStroke` holds, then forces three of one ink together, and adds a `rewrite` event
 - `readGlyph(runes, marks)` is the single scoring rule; marginalia add bonuses through their `glyph` function in `src/core/data.js`, flags like `mossRubric` are checked by key
 - Randomness: `rng(seed)` then store `rand.state()` back in `run.seed` or `combat.seed`
-- `src/core/bot.js`: `bestPath` exhaustive, `humanPath` top three at depth 4, `playRun`, `summarize`; any data change must keep `test/balance.test.js` in its bands (about 15 s) and refresh `docs/balance.md`
+- `src/core/bot.js`: `bestPath` exhaustive to depth 8 keeping the top three, `humanPath` top three at depth 6, `longestPath` (the old exploit's heir, must stay at or under 60% full wins), `playRun`, `summarize`; any data change must keep `test/balance.test.js` in its bands (about 15 s) and refresh `docs/balance.md`
 - `window.saltscript` exposes `run`, `hint`, `pointFor`, `node` for `e2e/play.js`; e2e blocks Google Fonts to stay offline
 - Chromium at `/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` (override with `CHROMIUM`); `playwright-core` only
 - Biome formats Markdown too; run `npm run fix` before committing

@@ -28,6 +28,7 @@ const reactions = {
   salt: ({ foe }, { value }) => float(foe, t('salted', { n: value }), 'salt'),
   smudge: ({ foe }, { value }) => float(foe, t('smudged', { n: value }), 'salt'),
   undertow: ({ foe }) => float(foe, t('undertowFloat'), 'salt'),
+  rewrite: ({ you }) => float(you, t('rewriteFloat'), 'ward'),
   burn: ({ foe }, { value }) => {
     float(foe, t('minusBurn', { n: value }), 'burn')
     shake(foe)

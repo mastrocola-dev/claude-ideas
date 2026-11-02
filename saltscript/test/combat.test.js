@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { createCombat, endTurn, height, isValid, readGlyph, width, write } from '../src/core/combat.js'
+import { createCombat, endTurn, hasStroke, height, isValid, readGlyph, width, write } from '../src/core/combat.js'
 
 const rune = (ink, value = 1, id = `${ink}${value}${Math.random()}`) => ({ id, ink, value })
 const bag = Array.from({ length: 30 }, (_, i) => rune(['brine', 'ember', 'moss'][i % 3], 1, `r${i}`))
@@ -13,46 +13,76 @@ test('the board starts full and keeps the rest of the bag in the pile', () => {
   assert.equal(combat.pile.length, bag.length - width * height)
 })
 
-test('a stroke needs three adjacent runes without repeats', () => {
-  const combat = fight()
-  assert.equal(isValid(combat, [0, 1]), false)
-  assert.equal(isValid(combat, [0, 1, 2]), true)
-  assert.equal(isValid(combat, [0, 5, 10]), true)
-  assert.equal(isValid(combat, [0, 2, 3]), false)
-  assert.equal(isValid(combat, [0, 1, 0]), false)
+const page = inks => inks.map((ink, i) => (ink ? rune(ink, 1, `p${i}`) : null))
+const stripes = page(Array.from({ length: 20 }, (_, i) => ['brine', 'ember', 'moss', 'brine'][i % 4]))
+const board = cells => ({ ...fight(), cells })
+
+test('a stroke needs three adjacent runes of one ink without repeats', () => {
+  const combat = board(stripes)
+  assert.equal(isValid(combat, [0, 4]), false)
+  assert.equal(isValid(combat, [0, 4, 8]), true)
+  assert.equal(isValid(combat, [0, 4, 9]), false)
+  assert.equal(isValid(combat, [0, 8, 12]), false)
+  assert.equal(isValid(combat, [0, 4, 0]), false)
+  assert.equal(isValid(combat, [3, 7, 11, 15, 19]), true)
 })
 
-test('seals of one ink earn more mult than mixed lines', () => {
-  const seal = readGlyph([rune('brine', 2), rune('brine', 2), rune('brine', 2)], [])
-  const line = readGlyph([rune('brine', 2), rune('ember', 2), rune('moss', 2)], [])
-  assert.deepEqual([seal.name, seal.mult, seal.damage], ['Seal of Brine', 2, 12])
-  assert.deepEqual([line.name, line.mult, line.damage, line.ward, line.burn], ['Line', 1, 4, 2, 1])
+test('salt joins any ink only with Saltwise', () => {
+  const cells = stripes.map((r, i) => (i === 4 ? { id: 'salt', ink: 'salt', value: 0, ttl: 3 } : r))
+  assert.equal(isValid(board(cells), [0, 4, 8]), false)
+  assert.equal(isValid({ ...board(cells), marks: ['saltwise'] }, [0, 4, 8]), true)
+  const allSalt = cells.map(() => ({ id: 's', ink: 'salt', value: 0, ttl: 3 }))
+  assert.equal(isValid({ ...board(allSalt), marks: ['saltwise'] }, [0, 1, 2]), false)
 })
 
-test('longer strokes climb tiers and marginalia add to them', () => {
-  const litany = readGlyph(Array(7).fill(rune('moss', 1)), ['longHand'])
-  assert.deepEqual([litany.name, litany.mult, litany.ward], ['Litany of Moss', 6, 42])
+test('mult is the number of runes minus two', () => {
+  const seal = readGlyph(Array(3).fill(rune('brine', 2)), [])
+  assert.deepEqual([seal.name, seal.mult, seal.damage], ['Seal of Brine', 1, 6])
+  const litany = readGlyph(Array(6).fill(rune('ember', 1)), [])
+  assert.deepEqual([litany.name, litany.mult, litany.damage, litany.burn], ['Litany of Ember', 4, 24, 6])
+  const canticle = readGlyph(Array(7).fill(rune('moss', 1)), ['longHand'])
+  assert.deepEqual([canticle.name, canticle.mult, canticle.ward, canticle.damage], ['Canticle of Moss', 7, 49, 0])
+})
+
+test('a page with no stroke rewrites itself until one exists', () => {
+  const lonely = page(Array.from({ length: 20 }, (_, i) => ['brine', 'ember', 'moss'][(i + Math.floor(i / 4)) % 3]))
+  assert.equal(hasStroke(board(lonely)), true)
+  const scattered = page(['brine', 'ember', 'brine', 'ember', 'moss', 'moss', null, null, ...Array(12).fill(null)])
+  assert.equal(hasStroke(board(scattered)), false)
+})
+
+test('every page a fight shows has a stroke, whatever the bag and the foe', () => {
+  const inks = ['brine', 'ember', 'moss']
+  for (let seed = 1; seed <= 300; seed++) {
+    const size = 12 + (seed % 20)
+    const mixed = Array.from({ length: size }, (_, i) => rune(inks[(i * 7 + seed) % 3], 1 + (i % 3), `m${seed}-${i}`))
+    let combat = createCombat({ bag: mixed, hp: 999, maxHp: 999, marks: [], enemy: 'keeper', floor: 0, seed })
+    for (let turn = 0; turn < 6 && combat.status === 'playing'; turn++) {
+      assert.ok(hasStroke(combat), `seed ${seed} turn ${turn}`)
+      combat = endTurn(combat)
+    }
+  }
 })
 
 test('writing damages the enemy, refills the board and spends a stroke', () => {
-  const combat = fight()
-  const next = write(combat, [0, 1, 2])
-  assert.ok(next.enemy.hp < combat.enemy.hp)
+  const combat = board(stripes)
+  const next = write(combat, [0, 4, 8])
+  assert.equal(next.enemy.hp, combat.enemy.hp - 3)
   assert.equal(next.strokes, 1)
   assert.equal(next.cells.filter(Boolean).length, width * height)
 })
 
 test('the enemy acts on end turn once the strokes are spent', () => {
-  const spent = write(write(fight(), [0, 1, 2]), [0, 1, 2])
+  const spent = write(write(board(stripes), [0, 4, 8]), [3, 7, 11])
   assert.equal(spent.turn, 1)
   assert.equal(spent.strokes, 0)
   assert.equal(spent.hp, 50)
-  assert.equal(write(spent, [0, 1, 2]), spent)
+  assert.equal(write(spent, [0, 4, 8]), spent)
   const combat = endTurn(spent)
   assert.equal(combat.turn, 2)
   assert.equal(combat.strokes, 2)
   assert.ok(combat.hp < 50)
-  assert.equal(endTurn(fight()).hp, 50 - 9)
+  assert.equal(endTurn(fight()).hp, 50 - 12)
 })
 
 test('burn ticks at the start of the enemy turn', () => {

@@ -264,6 +264,7 @@ const eventText = (combat, event) => {
     return t('glyphLog', { name: glyphName(event.glyph), parts: glyphParts(event.glyph) })
   }
   if (event.kind === 'burn') return t('burnSears', { n: event.value })
+  if (event.kind === 'rewrite') return t('rewrite')
   return t('foeActs', { foe: local('enemies', combat.enemy.key).name, intent: intentText(event) })
 }
 

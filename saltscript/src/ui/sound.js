@@ -70,6 +70,9 @@ export const eventSounds = {
   rise: () => tone({ from: 110, to: 220, duration: 0.35, type: 'sawtooth', volume: 0.07 }),
   smudge: () => noise({ duration: 0.25, band: 900, volume: 0.12 }),
   undertow: () => tone({ from: 160, to: 60, duration: 0.5, volume: 0.2 }),
+  rewrite: () => {
+    for (const delay of [0, 0.05, 0.1, 0.15, 0.2]) noise({ duration: 0.05, band: 2200, volume: 0.08, delay })
+  },
   burn: () => noise({ duration: 0.35, band: 5000, volume: 0.1 }),
   salt: () => {
     for (const delay of [0, 0.07, 0.15, 0.24]) noise({ duration: 0.04, band: 3500, volume: 0.14, delay })

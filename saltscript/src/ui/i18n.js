@@ -29,10 +29,8 @@ export const local = (section, key) => ({ ...sources[section][key], ...translate
 
 export const guide = section => translated()[section] ?? english[section]
 
-export const glyphName = ({ ink, length }) => {
-  if (ink) return t(length >= 5 ? 'litanyOf' : 'sealOf', { ink: local('inks', ink).name })
-  return t(length >= 7 ? 'canticle' : length >= 5 ? 'verse' : 'line')
-}
+export const glyphName = ({ ink, length }) =>
+  t(length >= 7 ? 'canticleOf' : length >= 5 ? 'litanyOf' : 'sealOf', { ink: local('inks', ink ?? 'salt').name })
 
 export const applyStatic = root => {
   root.documentElement.lang = language() === 'pt' ? 'pt-BR' : 'en'

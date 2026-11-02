@@ -47,6 +47,6 @@ test('switching language changes names, glyphs and sentences', () => {
   assert.equal(t('turn', { n: 3 }), 'Turno 3')
   updateSettings({ language: 'en' })
   assert.equal(glyphName({ ink: 'brine', length: 5 }), 'Litany of Brine')
-  assert.equal(glyphName({ ink: null, length: 7 }), 'Canticle')
+  assert.equal(glyphName({ ink: 'moss', length: 7 }), 'Canticle of Moss')
   assert.equal(local('acts', 1).name, 'The Sunken Nave')
 })

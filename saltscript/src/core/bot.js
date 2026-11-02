@@ -1,4 +1,4 @@
-import { adjacent, canWrite, intentOf, readGlyph } from './combat.js'
+import { canExtend, intentOf, isValid, readGlyph } from './combat.js'
 import { acts, shrines } from './data.js'
 import { rng } from './rng.js'
 import { act, createRun, reachable } from './run.js'
@@ -9,35 +9,54 @@ const worth = (state, glyph, threat) => {
   return lethal + glyph.damage + guard * 1.2 + glyph.burn * 2 + glyph.length * 0.1
 }
 
+const keep = 3
+
 const rankPaths = (state, depth) => {
   if (!state.strokes) return []
   const intent = intentOf(state)
   const threat = intent.kind === 'attack' ? intent.value : 0
-  const cells = state.cells.map((_, i) => i).filter(i => canWrite(state, i))
+  const cells = state.cells.map((_, i) => i)
   const ranked = []
   const walk = path => {
-    if (path.length >= 3) {
+    if (path.length >= 3 && isValid(state, path)) {
       const runes = path.map(i => state.cells[i])
-      ranked.push({ score: worth(state, readGlyph(runes, state.marks, state.bagSize), threat), path })
+      const score = worth(state, readGlyph(runes, state.marks, state.bagSize), threat)
+      if (ranked.length < keep || score > ranked.at(-1).score) {
+        ranked.push({ score, path })
+        ranked.sort((x, y) => y.score - x.score)
+        ranked.length = Math.min(ranked.length, keep)
+      }
     }
     if (path.length === depth) return
     for (const next of cells) {
-      if (!path.includes(next) && adjacent(path.at(-1), next)) walk([...path, next])
+      if (canExtend(state, path, next)) walk([...path, next])
     }
   }
-  for (const start of cells) walk([start])
-  return ranked.sort((a, b) => b.score - a.score)
+  for (const start of cells) if (canExtend(state, [], start)) walk([start])
+  return ranked
 }
 
-export const bestPath = (state, depth = 6) => rankPaths(state, depth)[0]?.path ?? null
+export const bestPath = (state, depth = 8) => rankPaths(state, depth)[0]?.path ?? null
 
-export const humanPath = (state, rand, depth = 4) => {
+export const humanPath = (state, rand, depth = 6) => {
   const top = rankPaths(state, depth).slice(0, 3)
   return top.length ? rand.pick(top).path : null
 }
 
+export const longestPath = state => {
+  if (!state.strokes) return null
+  let best = null
+  const walk = path => {
+    if (isValid(state, path) && (!best || path.length > best.length)) best = path
+    for (let next = 0; next < state.cells.length; next++) if (canExtend(state, path, next)) walk([...path, next])
+  }
+  for (let start = 0; start < state.cells.length; start++) if (canExtend(state, [], start)) walk([start])
+  return best
+}
+
 export const policies = {
-  exhaustive: () => state => bestPath(state, 5),
+  longest: () => longestPath,
+  exhaustive: () => state => bestPath(state, 8),
   human: rand => state => humanPath(state, rand),
 }
 

@@ -32,17 +32,20 @@ Enemies are things the sea has half erased: the Drowned Acolyte, the Brine Hound
 Coast Road map (branching floors) ──► node: fight · elite · shrine · market · rest · boss
                                               │
 fight: 4×5 page of runes drawn from your inkwell (the bag)
-  swipe 3+ touching runes (8 directions) ──► glyph
+  swipe 3+ touching runes of one ink (8 directions) ──► glyph
   glyph = chips × mult
-    chips: rune values by ink   mult: length tier (3–4: 1, 5–6: 2, 7+: 3) + 1 if one ink (Seal / Litany)
-    Brine + Ember chips → wound · Moss chips → ward · each Ember → 1 burn
+    chips: rune values   mult: runes − 2 (Seal up to 4, Litany up to 6, Canticle from 7)
+    Brine → wound · Ember → wound and 1 burn per rune · Moss → ward
+  a page with no stroke left rewrites itself, so a fight never locks
   2 strokes per turn, then the foe acts on its shown intent (strike, ward, salt, swell)
   used runes go to the discard; the page refills from the bag, which reshuffles when empty
                                               │
 reward: gold + pick 1 of 3 runes (elites also offer marginalia) ──► next floor
 ```
 
-The tension: long single-ink Litanies hit hardest but are rare. Mixed Verses are easy to find and split into wound and ward. Every rune added to the bag changes what the page can show you.
+The tension: every stroke is a choice between wounding and warding, and long strokes only exist where an ink happened to pool. Every rune added to the bag changes what the page can show you.
+
+Revised 2026-11-02: strokes used to mix inks, which let a single zigzag through all twenty runes win every run. One ink per stroke closes that and makes the rule fit in one sentence.
 
 ## What makes it sticky
 

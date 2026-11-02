@@ -5,7 +5,7 @@
 <p>
   <img src="docs/screenshots/title.png" alt="Title screen" width="220" />
   <img src="docs/screenshots/map.png" alt="The Coast Road map with branching floors" width="220" />
-  <img src="docs/screenshots/combat.png" alt="A fight: a five-rune Verse swiped across the page" width="220" />
+  <img src="docs/screenshots/combat.png" alt="A fight: a stroke of one ink swiped across the page" width="220" />
   <img src="docs/screenshots/reward.png" alt="Reward screen offering three runes" width="220" />
 </p>
 
@@ -14,8 +14,9 @@ A mobile web roguelike (PWA, portrait, offline) in plain JavaScript, with no bui
 ## How to play
 
 - Walk the Coast Road: choose a lane each floor through fights, elites, shrines, markets and rests up to the boss of each of three acts
-- Swipe across three or more touching runes, in any of eight directions, to write a glyph; or tap them in order and press Write
-- A glyph scores chips × mult: chips come from the runes' values, mult from its length (3–4 runes: 1, 5–6: 2, 7+: 3), plus 1 if it uses one ink
+- Swipe across three or more touching runes of the same ink, in any of eight directions, to write a glyph; or tap them in order and press Write
+- A glyph scores chips × mult: chips come from the runes' values, mult is the number of runes minus 2
+- When no stroke is left on the page, it rewrites itself, so a fight never locks
 - Brine wounds, Ember wounds and sets burning, Moss wards; Salt is left by the Tide, clogs the page and crumbles after three turns
 - You write two strokes a turn, then the foe acts on the intent it shows
 - After a fight, take gold and add one of three runes to your inkwell; marginalia bend the rules for big combos
