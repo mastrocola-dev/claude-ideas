@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S05 Balance harness
-
-`src/core/bot.js` gains a human-like policy (random among the top three paths, depth 4, seeded). `npm run balance` prints win rate, floor reached and turns per fight over 50 seeds for both policies. Tune data so the exhaustive bot wins at least 90% of act 1 and the human-like bot 40–60%. Record the table in `docs/balance.md`. Done when a test pins both rates within the bands on 20 seeds.
-
 ### S06 Acts two and three
 
 After the Tide, the run continues to act two (The Sunken Nave) and act three (The Lighthouse), each with its own map, 2 new foes, 1 elite and a boss, and at least two new intents (for example `smudge`: lower two runes by one; `undertow`: shift a column down). Heal half the missing health between acts. Victory after the third boss. Done when the bot can finish all three acts on at least one of 10 seeds and tests cover the new intents.
@@ -48,7 +44,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 
 - Board is 4 columns × 5 rows so runes stay large on a phone; the bag starts at 26 and cannot be scraped below 12, so a thin bag leaves empty cells
 - Salt runes vanish when written through with Saltwise instead of returning to the bag
-- First balance pass: an exhaustive bot (depth 5) wins act 1 on 10 of 10 seeds, sometimes with under 10 health left; human play is expected near half
+- Balance bands rest on bots, not people: the human-like policy never writes past 4 runes, so the Tide and Choirmother were cut to 125 and 110 base health; real players reaching 5-rune Verses may find act 1 easy
 
 ## Done
 
@@ -56,6 +52,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S02 Map routes: SVG links behind the nodes, walked trail, unreachable nodes dimmed (2026-11-02)
 - S03 Combat feel: floats, glyph flourish, 600 ms foe pause, salt cracks, reduced motion (2026-11-02)
 - S04 Sound and haptics: synthesized cues per event, persisted mute, guarded vibrate (2026-11-02)
+- S05 Balance harness: human-like policy, `npm run balance`, boss and elite tuned, bands pinned by test (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

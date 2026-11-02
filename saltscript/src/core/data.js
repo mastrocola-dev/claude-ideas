@@ -53,7 +53,7 @@ export const enemies = {
   },
   choirmother: {
     name: 'The Choirmother',
-    hp: 150,
+    hp: 110,
     intents: [
       ['salt', 4],
       ['attack', 20],
@@ -63,7 +63,7 @@ export const enemies = {
   },
   tide: {
     name: 'The Unwriting Tide',
-    hp: 260,
+    hp: 125,
     intents: [
       ['attack', 18],
       ['salt', 5],
