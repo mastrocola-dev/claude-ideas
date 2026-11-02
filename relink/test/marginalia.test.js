@@ -88,3 +88,23 @@ test('rewards roll mostly common marginalia and never one you hold', () => {
   assert.ok(share('uncommon') > share('rare'))
   assert.ok(share('rare') > 0)
 })
+
+test('Battery Bank shield covers this attack and the next, then expires', () => {
+  const combat = { ...fight(['batteryBank']), ward: 30 }
+  const first = endTurn(combat)
+  assert.deepEqual([first.hp, first.ward, first.carried], [50, 18, 18])
+  const withFresh = { ...first, ward: first.ward + 5 }
+  const second = endTurn(withFresh)
+  assert.deepEqual([second.hp, second.ward, second.carried], [50, 5, 5])
+  const third = endTurn(second)
+  assert.equal(third.hp, 50 - 23 + 5)
+  assert.equal(endTurn({ ...fight([]), ward: 30 }).ward, 0)
+})
+
+test('an attack reports what the shield blocked and what got through', () => {
+  const struck = endTurn({ ...fight([]), ward: 5 })
+  assert.deepEqual(
+    struck.events.find(e => e.kind === 'attack'),
+    { kind: 'attack', value: 12, blocked: 5, lost: 7 },
+  )
+})

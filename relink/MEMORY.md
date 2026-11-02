@@ -34,3 +34,7 @@ Rewritten by each run; keep it short.
 - Every visible string goes through `t(key)` from `src/ui/i18n.js`; content names come from `local(section, key)`, glyph names from `glyphName(glyph)`, never `glyph.name`; static HTML uses `data-i18n` and `data-i18n-label`
 - A new string or content key needs `src/ui/locales/en.js` and `pt.js` (or a `pt` overlay for `data.js` content); `test/i18n.test.js` enforces both and matching placeholders
 - `src/ui/music.js` is generative WebAudio (filtered-noise hum, two sawtooth drones, square-wave arpeggios); `show()` sets mood `calm` or `fight`; it starts on the first pointer or key press
+- Shield: `combat.carried` is the part of `ward` kept from the previous turn by `batteryBank`; it absorbs first and expires at the next turn start; attack events carry `blocked` and `lost`
+- Selling: `sell` action and `sellPrice` in `run.js`; `run.startSize` (bank size at run start) is the floor; old saves default to 26
+- Meta lives on its own `#hangar` section shown as the Workshop; the title only shows `#open-hangar` once data exists
+- `src/ui/board.js` animates cells by id (`places`): new ids fall from above their column, moved ids slide; targets drive hit-testing, so input never waits for animation

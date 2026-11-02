@@ -163,12 +163,17 @@ try {
     localStorage.setItem('relink.meta', JSON.stringify({ lamplight: 100, unlocked: [], scribe: 'rep7', banked: null })),
   )
   await page.reload()
+  await page.click('#open-hangar')
+  await audit('workshop')
   await page.click('[data-unlock="torch"]')
   await page.click('[data-scribe="torch"]')
   await page.screenshot({ path: `${shots}unlocks.png`, fullPage: true })
   await page.reload()
+  assert.match(await page.textContent('#open-hangar'), /Workshop · 60 data/)
+  await page.click('#open-hangar')
   assert.equal(await page.locator('[data-unlock="torch"]').isDisabled(), true)
-  assert.match(await page.textContent('#lamplight'), /Data 60/)
+  assert.match(await page.textContent('#lamplight'), /Data available: 60/)
+  await page.click('#hangar-back')
   await page.click('#new-run')
   assert.deepEqual(await page.evaluate(() => window.relink.run().marks), ['afterburner'])
   await page.reload()
@@ -205,6 +210,21 @@ try {
   const rune = { id: 'audit', ink: 'shield', value: 2 }
   await auditForced('map', { screen: 'map', offer: null, combat: null, floor: -1 })
   await auditForced('market', { screen: 'market', offer: { runes: [rune], marks: ['overclock'] } })
+  const extra = await page.evaluate(() => window.relink.run().bag.length - window.relink.run().startSize)
+  const scrap = await page.evaluate(() => window.relink.run().gold)
+  await page.click('#sell-label')
+  if (extra > 0) {
+    await page.click('#market-sell button >> nth=0')
+    assert.ok((await page.evaluate(() => window.relink.run().gold)) > scrap)
+  }
+  await page.evaluate(() =>
+    window.relink.play({
+      ...window.relink.run(),
+      bag: window.relink.run().bag.slice(0, window.relink.run().startSize),
+    }),
+  )
+  assert.equal(await page.locator('#market-sell button >> nth=0').isDisabled(), true)
+  await page.screenshot({ path: `${shots}market.png`, fullPage: true })
   await auditForced('rest', { screen: 'rest', offer: { upgrades: [] } })
   await auditForced('shrine', { screen: 'shrine', offer: { shrine: 'oracle' } })
   await auditForced('end', { screen: 'defeat' })

@@ -342,6 +342,11 @@ button.rune {
   font-size: 14px;
 }
 
+.choice.chosen {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
 .choice .price {
   white-space: nowrap;
   margin-left: auto;
@@ -365,6 +370,42 @@ button.rune {
 .stack {
   display: grid;
   gap: 10px;
+}
+
+.balance {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  font: 600 20px / 1.2 var(--display);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  margin: -6px 0 0;
+  color: var(--dim);
+  font-size: 14px;
+}
+
+.sell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sell button {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 10px;
+  background: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 #combat {
@@ -875,4 +916,13 @@ button.rune {
   .toggle input::after {
     transition: none;
   }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

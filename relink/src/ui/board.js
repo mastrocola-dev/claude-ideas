@@ -2,6 +2,12 @@ import { height, width } from '../core/combat.js'
 import { inks } from '../core/data.js'
 
 const scanDuration = 450
+const fallBase = 180
+const fallPerRow = 70
+const settle = t => {
+  const eased = 1 - (1 - t) ** 3
+  return t < 1 ? eased + Math.sin(t * Math.PI) * 0.06 : 1
+}
 const void_ = '#07080f'
 
 export const numeral = value => String(value)
@@ -10,6 +16,7 @@ export const createBoard = canvas => {
   const ctx = canvas.getContext('2d')
   let box = { cell: 0, left: 0, top: 0 }
   const glitchSeen = new Map()
+  const places = new Map()
   const stillMotion = matchMedia('(prefers-reduced-motion: reduce)')
 
   const scanProgress = rune => {
@@ -29,6 +36,38 @@ export const createBoard = canvas => {
   }
 
   const center = i => [box.left + ((i % width) + 0.5) * box.cell, box.top + (Math.floor(i / width) + 0.5) * box.cell]
+
+  const at = (column, row) => [box.left + (column + 0.5) * box.cell, box.top + (row + 0.5) * box.cell]
+
+  const track = (cells, now) => {
+    const arriving = Array(width).fill(0)
+    for (const [i, rune] of cells.entries()) {
+      if (rune && !places.has(rune.id)) arriving[i % width] += 1
+    }
+    const present = new Set()
+    for (const [i, rune] of cells.entries()) {
+      if (!rune) continue
+      present.add(rune.id)
+      const column = i % width
+      const row = Math.floor(i / width)
+      const place = places.get(rune.id)
+      if (!place) {
+        places.set(rune.id, { from: [column, row - arriving[column]], to: [column, row], start: now })
+        continue
+      }
+      if (place.to[0] === column && place.to[1] === row) continue
+      places.set(rune.id, { from: position(place, now), to: [column, row], start: now })
+    }
+    for (const id of places.keys()) if (!present.has(id)) places.delete(id)
+  }
+
+  const position = (place, now) => {
+    if (stillMotion.matches) return place.to
+    const rows = Math.hypot(place.to[0] - place.from[0], place.to[1] - place.from[1])
+    const t = Math.min(1, (now - place.start) / (fallBase + fallPerRow * rows))
+    const k = settle(t)
+    return [place.from[0] + (place.to[0] - place.from[0]) * k, place.from[1] + (place.to[1] - place.from[1]) * k]
+  }
 
   const plate = (x, y, r) => {
     ctx.beginPath()
@@ -87,7 +126,13 @@ export const createBoard = canvas => {
 
   const draw = (combat, path) => {
     measure()
+    const now = performance.now()
+    track(combat.cells, now)
     ctx.clearRect(0, 0, box.rect.width, box.rect.height)
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(0, box.top - box.cell * 0.1, box.rect.width, box.cell * (height + 0.2))
+    ctx.clip()
     const r = box.cell * 0.34
     if (path.length > 1) {
       const lead = path.map(i => combat.cells[i]).find(rune => rune && rune.ink !== 'glitch')
@@ -106,9 +151,10 @@ export const createBoard = canvas => {
     combat.cells.forEach((rune, i) => {
       if (!rune) return
       const lit = path.includes(i)
-      const [x, y] = center(i)
+      const [x, y] = at(...position(places.get(rune.id), now))
       cell(x, y, lit ? r * 1.06 : r, rune, lit)
     })
+    ctx.restore()
   }
 
   const cellAt = (clientX, clientY) => {

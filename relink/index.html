@@ -24,12 +24,23 @@
       <button type="button" id="daily" class="secondary"></button>
       <button type="button" id="daily-share" class="ghost" hidden data-i18n="dailyShare">Share today's Tide</button>
       <button type="button" id="open-settings" class="ghost" data-i18n="settings">Settings</button>
-      <div id="meta" class="meta" hidden>
-        <p id="lamplight" class="label"></p>
-        <div id="scribes" class="stack" hidden></div>
-        <div id="unlocks" class="choices"></div>
-      </div>
+      <button type="button" id="open-hangar" class="secondary" hidden></button>
       <p class="how" data-i18n="how">Swipe across three or more touching runes to write a glyph, or tap them in order and press Write. One ink makes a Seal. Brine and Ember wound, Ember burns, Moss wards.</p>
+    </section>
+
+    <section id="hangar" class="screen" hidden>
+      <h2 class="screen-title" data-i18n="hangarTitle">Workshop</h2>
+      <p class="lede" data-i18n="hangarLede">Every repair, won or lost, recovers data from the station. Spend it here before your next repair.</p>
+      <p id="lamplight" class="balance"></p>
+      <div id="scribes-block" class="stack" hidden>
+        <p class="label" data-i18n="chassis">Chassis</p>
+        <p class="note" data-i18n="chassisHint">The drone you launch with. Pick one before starting a repair.</p>
+        <div id="scribes" class="choices"></div>
+      </div>
+      <p class="label" data-i18n="upgrades">Upgrades</p>
+      <p class="note" data-i18n="upgradesHint">Installed upgrades start appearing in rewards, terminals and the fabricator in later repairs.</p>
+      <div id="unlocks" class="choices"></div>
+      <button type="button" id="hangar-back" class="primary" data-i18n="backToTitle">Back to the title</button>
     </section>
 
     <section id="map" class="screen" hidden>
@@ -96,8 +107,14 @@
       <div id="market-runes" class="choices"></div>
       <p class="label" data-i18n="marginalia">Marginalia</p>
       <div id="market-marks" class="choices"></div>
-      <p class="label" id="remove-label"></p>
-      <div id="market-remove" class="bag"></div>
+      <details class="inkwell">
+        <summary id="sell-label"></summary>
+        <div id="market-sell" class="sell"></div>
+      </details>
+      <details class="inkwell">
+        <summary id="remove-label"></summary>
+        <div id="market-remove" class="bag"></div>
+      </details>
       <button type="button" id="market-leave" class="primary" data-i18n="backToRoad">Back to the road</button>
     </section>
 
@@ -119,6 +136,7 @@
       <h2 id="end-title" class="logo small">The night ends</h2>
       <p id="end-text" class="lede"></p>
       <dl id="end-stats" class="stats"></dl>
+      <p class="note" data-i18n="spendData">Spend recovered data in the workshop, from the title screen.</p>
       <button type="button" id="end-share" class="secondary" hidden data-i18n="dailyShare">Share today's Tide</button>
       <button type="button" id="end-new" class="primary" data-i18n="newRun">Begin a new night</button>
       <button type="button" id="end-title-screen" class="ghost" data-i18n="backToLighthouse">Back to the lighthouse</button>

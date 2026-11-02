@@ -33,6 +33,7 @@ Empty.
 - S15 Settings: sound effects, generative music and English or Portuguese, from title, map and combat (2026-11-02, built in the conversation)
 - S16 One ink per stroke: closes the zigzag-through-everything exploit (100% wins), mult = runes − 2, pages always hold a stroke, enemies retuned (2026-11-02, built in the conversation)
 - S17 Rethemed as Relink: a repair drone against a rogue station AI, neon visuals, synth audio, all content in English and Portuguese; rules unchanged (2026-11-02, built in the conversation)
+- S18 Author feedback: sell cells at the fabricator down to the starting bank size, Battery Bank shield lasts this attack and the next, attacks show what got through, falling-cell gravity, data spent in a separate Workshop screen (2026-11-02, built in the conversation)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

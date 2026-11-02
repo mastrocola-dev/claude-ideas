@@ -5,7 +5,7 @@ const key = 'relink.run'
 export const loadRun = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(key))
-    return saved && { trail: [], actIndex: 0, locked: [], ...saved, stats: { inks: [], ...saved.stats } }
+    return saved && { trail: [], actIndex: 0, locked: [], startSize: 26, ...saved, stats: { inks: [], ...saved.stats } }
   } catch {
     return null
   }

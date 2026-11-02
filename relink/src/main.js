@@ -3,7 +3,7 @@ import { canExtend, intentOf, isValid, readGlyph } from './core/combat.js'
 import { canStartDaily, createDailyRun, dateKey, recordDaily, shareText, startDaily } from './core/daily.js'
 import { inks, scribes, unlockCosts } from './core/data.js'
 import { bank, chooseScribe, hintSeen, lamplightEarned, runOptions, spend } from './core/meta.js'
-import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice } from './core/run.js'
+import { act, createRun, markPrice, minBag, nodeAt, openLanes, removePrice, runePrice, sellPrice } from './core/run.js'
 import { createBoard, numeral } from './ui/board.js'
 import { announce } from './ui/feedback.js'
 import { applyStatic, glyphName, guide, local, t } from './ui/i18n.js'
@@ -14,7 +14,7 @@ import { scratch } from './ui/sound.js'
 import { loadMeta, loadRun, saveMeta, saveRun } from './ui/store.js'
 
 const $ = id => document.getElementById(id)
-const screens = ['title', 'map', 'combat', 'reward', 'market', 'rest', 'shrine', 'end']
+const screens = ['title', 'hangar', 'map', 'combat', 'reward', 'market', 'rest', 'shrine', 'end']
 const symbols = { fight: '✕', elite: '◆', shrine: '▣', market: '⬡', rest: '✚', boss: '◉' }
 const board = createBoard($('board'))
 
@@ -110,10 +110,14 @@ const shareWords = () => ({
 
 const unlockTitle = key => local(scribes[key] ? 'scribes' : 'marginalia', key)
 
-const renderLamplight = () => {
+const renderHangarButton = () => {
   const known = meta.lamplight > 0 || meta.unlocked.length > 0
-  $('meta').hidden = !known
-  if (!known) return
+  $('open-hangar').hidden = !known
+  $('open-hangar').textContent = t('openHangar', { n: meta.lamplight })
+}
+
+const renderLamplight = () => {
+  show('hangar')
   $('lamplight').textContent = t('lamplight', { n: meta.lamplight })
   $('unlocks').replaceChildren(
     ...Object.entries(unlockCosts).map(([key, cost]) => {
@@ -138,21 +142,24 @@ const renderLamplight = () => {
     }),
   )
   const hands = Object.keys(scribes).filter(key => key === 'rep7' || meta.unlocked.includes(key))
-  $('scribes').hidden = hands.length < 2
+  $('scribes-block').hidden = hands.length < 2
   $('scribes').replaceChildren(
     ...hands.map(key => {
+      const chosen = meta.scribe === key
       const button = el(
         'button',
         {
           type: 'button',
-          className: meta.scribe === key ? 'secondary small' : 'ghost',
-          ariaPressed: String(meta.scribe === key),
+          className: `choice${chosen ? ' chosen' : ''}`,
+          ariaPressed: String(chosen),
           onclick: () => {
             meta = saveMeta(chooseScribe(meta, key))
             renderLamplight()
           },
         },
-        meta.scribe === key ? t('chosen', { name: local('scribes', key).name }) : local('scribes', key).name,
+        el('span', { className: 'mark' }, '◎'),
+        el('span', {}, el('strong', {}, local('scribes', key).name), el('small', {}, local('scribes', key).text)),
+        el('span', { className: 'price' }, chosen ? t('active') : t('choose')),
       )
       button.dataset.scribe = key
       return button
@@ -196,7 +203,7 @@ const renderDaily = () => {
 }
 
 const renderTitle = () => {
-  renderLamplight()
+  renderHangarButton()
   renderDaily()
   $('continue').hidden = !run || ['victory', 'defeat'].includes(run.screen)
   show('title')
@@ -250,6 +257,11 @@ const renderMap = () => {
 
 const intentText = intent => t(intent.kind === 'ward' ? 'wardIntent' : intent.kind, { n: intent.value })
 
+const intentPill = (intent, ward) =>
+  intent.kind === 'attack' && ward
+    ? `${intentText(intent)} · ${t('getsThrough', { n: Math.max(0, intent.value - ward) })}`
+    : intentText(intent)
+
 const glyphParts = glyph =>
   [
     glyph.damage && t('woundPart', { n: glyph.damage }),
@@ -265,7 +277,11 @@ const eventText = (combat, event) => {
   }
   if (event.kind === 'burn') return t('burnSears', { n: event.value })
   if (event.kind === 'rewrite') return t('rewrite')
-  return t('foeActs', { foe: local('enemies', combat.enemy.key).name, intent: intentText(event) })
+  const foe = local('enemies', combat.enemy.key).name
+  if (event.kind === 'attack' && event.blocked !== undefined) {
+    return t('foeStrikes', { foe, n: event.value, blocked: event.blocked, lost: event.lost })
+  }
+  return t('foeActs', { foe, intent: intentText(event) })
 }
 
 const renderPreview = combat => {
@@ -294,7 +310,7 @@ const renderCombat = () => {
   const { enemy } = combat
   const intent = intentOf(combat)
   $('foe-name').textContent = local('enemies', enemy.key).name
-  $('intent').textContent = intentText(intent)
+  $('intent').textContent = intentPill(intent, combat.ward)
   $('intent').className = `intent ${intent.kind}`
   $('foe-hp').textContent = `${enemy.hp} / ${enemy.maxHp}`
   $('foe-hp-fill').style.width = `${(enemy.hp / enemy.maxHp) * 100}%`
@@ -309,7 +325,9 @@ const renderCombat = () => {
   $('log').textContent = combat.events.map(event => eventText(combat, event)).join(' · ')
   $('you-hp').textContent = `${combat.hp} / ${combat.maxHp}`
   $('you-hp-fill').style.width = `${(combat.hp / combat.maxHp) * 100}%`
-  $('ward').textContent = t('ward', { n: combat.ward })
+  $('ward').textContent = combat.carried
+    ? t('wardCarried', { n: combat.ward, c: Math.min(combat.carried, combat.ward) })
+    : t('ward', { n: combat.ward })
   const total = combat.marks.includes('thirdArm') ? 3 : 2
   $('strokes').replaceChildren(
     ...Array.from({ length: total }, (_, i) => el('i', { className: i < combat.strokes ? '' : 'spent' })),
@@ -361,6 +379,25 @@ const renderMarket = () => {
       button.disabled = run.gold < markPrice
       return button
     }),
+  )
+  const canSell = run.bag.length > run.startSize
+  $('sell-label').textContent = canSell
+    ? t('sell', { n: run.bag.length - run.startSize, floor: run.startSize })
+    : t('sellFloor', { floor: run.startSize })
+  $('market-sell').replaceChildren(
+    ...run.bag.map(rune =>
+      el(
+        'button',
+        {
+          type: 'button',
+          disabled: !canSell,
+          onclick: () => dispatch({ type: 'sell', id: rune.id }),
+        },
+        el('span', { className: 'sr-only' }, t('sellAria', { rune: runeText(rune), n: sellPrice(rune) })),
+        runeChip(rune, { ariaHidden: 'true' }),
+        el('span', { ariaHidden: 'true' }, `+${sellPrice(rune)}`),
+      ),
+    ),
   )
   const canRemove = !offer.removed && run.gold >= removePrice && run.bag.length > minBag
   $('remove-label').textContent = offer.removed ? t('scraperWorn') : t('scrape', { n: removePrice })
@@ -549,7 +586,8 @@ for (const option of document.querySelectorAll('input[name="language"]')) {
 onSettings(() => {
   syncMusic()
   applyStatic(document)
-  if ($('title').hidden) render()
+  if (!$('hangar').hidden) renderLamplight()
+  else if ($('title').hidden) render()
   else renderTitle()
 })
 
@@ -562,6 +600,8 @@ $('daily').onclick = beginDaily
 $('continue').onclick = () => render()
 $('end-new').onclick = beginRun
 $('end-title-screen').onclick = renderTitle
+$('open-hangar').onclick = renderLamplight
+$('hangar-back').onclick = renderTitle
 $('end-turn').onclick = () => dispatch({ type: 'endTurn' })
 $('reward-skip').onclick = () => dispatch({ type: 'leave' })
 $('market-leave').onclick = () => dispatch({ type: 'leave' })

@@ -165,6 +165,7 @@ export const createCombat = ({ bag, hp, maxHp, marks, enemy, floor, seed }) => {
     hp,
     maxHp,
     ward: 0,
+    carried: 0,
     marks,
     bagSize: bag.length,
     strokes: strokesPerTurn(marks),
@@ -218,7 +219,10 @@ const enemyAct = state => {
   next = { ...next, cells }
   if (intent.kind === 'attack') {
     const player = hurt({ hp: next.hp, ward: next.ward }, intent.value)
-    next = { ...next, ...player }
+    const blocked = next.ward - player.ward
+    const carried = Math.max(0, (next.carried ?? 0) - blocked)
+    const strike = { ...intent, blocked, lost: next.hp - player.hp }
+    next = { ...next, ...player, carried, events: [...events, strike] }
   }
   if (intent.kind === 'ward') enemy = { ...enemy, ward: enemy.ward + intent.value }
   if (intent.kind === 'boost') enemy = { ...enemy, strength: enemy.strength + intent.value }
@@ -239,9 +243,11 @@ const enemyAct = state => {
   enemy = { ...enemy, step: enemy.step + 1 }
   next = { ...next, enemy, seed: rand.state() }
   if (next.hp <= 0) return { ...next, hp: 0, status: 'lost' }
+  const fresh = has(state, 'batteryBank') ? next.ward - (next.carried ?? 0) : 0
   return draw({
     ...next,
-    ward: (has(state, 'batteryBank') ? next.ward : 0) + (has(state, 'glitchRecycler') ? crumbled * 3 : 0),
+    ward: fresh + (has(state, 'glitchRecycler') ? crumbled * 3 : 0),
+    carried: fresh,
     strokes: strokesPerTurn(state.marks),
     turn: state.turn + 1,
   })

@@ -110,3 +110,13 @@ test('each act draws foes from its own pool', () => {
   const run = act({ ...createRun(8), actIndex: 1 }, { type: 'choose', lane: 0 })
   assert.ok(['crab', 'diver'].includes(run.combat.enemy.key))
 })
+
+test('cells sell at the fabricator only while the bank is above its starting size', () => {
+  const start = createRun(4)
+  const extra = { id: 'x', ink: 'plasma', value: 3 }
+  const market = { ...start, screen: 'market', gold: 0, bag: [...start.bag, extra], offer: { runes: [], marks: [] } }
+  const sold = act(market, { type: 'sell', id: 'x' })
+  assert.equal(sold.gold, 22)
+  assert.equal(sold.bag.length, start.startSize)
+  assert.equal(act(sold, { type: 'sell', id: sold.bag[0].id }), sold)
+})
