@@ -23,3 +23,4 @@ Rewritten by each run; keep it short.
 - `src/core/meta.js` is pure; `createRun(seed, runOptions(meta))`; `run.locked` filters marginalia offers; meta lives under `saltscript.meta`, banks once per `run.origin` and on load
 - `src/core/daily.js`: `createDailyRun(date)` sets `run.daily`; `meta.daily` holds `{date, result}`; `run.stats.inks` records every written glyph's ink
 - `meta.hints` counts first-fight hints shown, advanced on each written stroke; the codex is a `<dialog>` filled on open
+- `sw.js` shell must list every `src/` file (`test/pwa.test.js` enforces); stale-while-revalidate, so a new deploy shows on the second load

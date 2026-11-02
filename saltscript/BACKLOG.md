@@ -4,10 +4,6 @@ The build agent takes items from the top of **Next**, one commit each. Scheduled
 
 ## Next
 
-### S12 PWA
-
-Manifest, icon, service worker caching the app shell and fonts, offline play after the first visit. Done when e2e reloads offline and starts a run.
-
 ### S13 Accessibility
 
 axe in e2e on every screen with no serious or critical violations; a tap alternative to swiping (tap runes in order, then Write); each ink also has a shape mark inside the seal so colour is not the only cue. Done when e2e wins a fight using taps only.
@@ -37,6 +33,7 @@ axe in e2e on every screen with no serious or critical violations; a tap alterna
 - S09 Meta progression: Lamplight banked per run, unlockable marginalia and the Ember Novice on the title (2026-11-02)
 - S10 Daily Tide: UTC-seeded run, one attempt per date, share text with ink row (2026-11-02)
 - S11 Codex and first-fight guidance: codex dialog from map and combat, three hints once (2026-11-02)
+- S12 PWA: manifest, service worker with cached shell and fonts, offline play (2026-11-02)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 

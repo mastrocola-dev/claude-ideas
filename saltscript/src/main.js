@@ -511,6 +511,8 @@ const frame = () => {
 renderTitle()
 requestAnimationFrame(frame)
 
+navigator.serviceWorker?.register('sw.js')
+
 window.saltscript = {
   run: () => run,
   hint: () => bestPath(run.combat, 5),
