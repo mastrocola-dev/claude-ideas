@@ -1,0 +1,12 @@
+{
+  "name": "Relink",
+  "short_name": "Relink",
+  "description": "A roguelike where you fight a rogue station AI by linking energy cells of the same charge.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07080f",
+  "theme_color": "#07080f",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
