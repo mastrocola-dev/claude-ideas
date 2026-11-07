@@ -7,7 +7,7 @@ android {
         applicationId "dev.mastrocola.relink"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (System.getenv('RELINK_VERSION_CODE') ?: '1').toInteger()
+        versionCode = (System.getenv('RELINK_VERSION_CODE') ?: '1').toInteger()
         versionName System.getenv('RELINK_VERSION_NAME') ?: '0.1.0'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
