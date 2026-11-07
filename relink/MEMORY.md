@@ -41,3 +41,5 @@ Rewritten by each run; keep it short.
 - Balance: `npm run balance` includes the `player` policy (modules, fabricator, rests); `docs/balance.md` keeps the per-act damage table; aim for deaths spread across acts, not piled on one boss
 - Visual language: chamfered panels (`--chamfer`), corner brackets, segmented meters with a delayed `.ghost`, mono numerals (`--mono`), no rounded pills; feedback floats are `{value, tag, tone, weight}` and the link name shows in `#banner`, heavy hits flash `#impact`
 - Choice cards carry `tiered common|uncommon|rare`; cells tier by value (1, 2, 3+)
+- Android: `capacitor.config.json` (`dev.mastrocola.relink`, webDir `www`), `android/` is committed except `app/src/main/assets/public`; a new `src/` file needs nothing extra (stage copies the folder); the service worker is skipped inside the app (`Capacitor.isNativePlatform`); `Capacitor.Plugins.App` handles the back button
+- Gradle and the Android SDK are unreachable from a Claude session: APKs are built only by `.github/workflows/relink-apk.yml`; `gh api` reads run status

@@ -39,6 +39,19 @@ npm run serve   # http://localhost:5173
 | `npm run e2e`     | Wins fights by swipes and taps in Chromium, checks reload, offline and axe on every screen |
 | `npm run balance` | Plays seeded runs with the bots and prints the [balance table](docs/balance.md)            |
 
+## Android
+
+The game ships as an Android app through Capacitor: `npm run stage` copies the web files into `www/`, `npm run android:sync` copies them into `android/`, and `npm run android:assets` renders the launcher icons and splash from the game icon.
+
+The workflow `.github/workflows/relink-apk.yml` (repository root) builds `relink-0.1.<run>.apk` on every push to `poc` that touches `relink/`, and publishes it as a pre-release. It signs with the release key from these repository secrets when they exist, and with a throwaway debug key otherwise (then each build must be uninstalled before the next one is installed):
+
+| Secret                     | Value                   |
+| -------------------------- | ----------------------- |
+| `RELINK_KEYSTORE_BASE64`   | `base64 -w0 relink.jks` |
+| `RELINK_KEYSTORE_PASSWORD` | the keystore password   |
+| `RELINK_KEY_ALIAS`         | `relink`                |
+| `RELINK_KEY_PASSWORD`      | the key password        |
+
 ## Layout
 
 - `src/core/` pure, deterministic game logic: run reducer, combat, data, meta, daily, bots

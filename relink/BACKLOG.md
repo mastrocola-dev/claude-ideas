@@ -35,10 +35,14 @@ Empty.
 - S17 Rethemed as Relink: a repair drone against a rogue station AI, neon visuals, synth audio, all content in English and Portuguese; rules unchanged (2026-11-02, built in the conversation)
 - S18 Author feedback: sell cells at the fabricator down to the starting bank size, Battery Bank shield lasts this attack and the next, attacks show what got through, falling-cell gravity, data spent in a separate Workshop screen (2026-11-02, built in the conversation)
 - S19 Author feedback: 30-run damage and health pass (deaths now spread across acts), per-charge sell floor, sorted bank lists, rarity colours on cells and modules, HUD redesign with intent block, ghost bars, impact numbers and link banner (2026-11-02, built in the conversation)
+- S20 Android: Capacitor 8.5 project, rendered icons and splash, back button, APK built and published by GitHub Actions (2026-11-06, built in the conversation)
 
 MVP rule: every commit keeps `npm test`, `npm run check` and `npm run e2e` green.
 
 ## Later
+
+- Google Play: release key in secrets, `.aab` build (`bundleRelease`), store listing, privacy policy, 12 testers for 14 days on a personal account
+- Bundle the fonts into the app so the APK looks the same offline
 
 - Hosting with a public link, native wrapper and store listing
 - Scribe skins, ink cosmetics, seasonal Tides
