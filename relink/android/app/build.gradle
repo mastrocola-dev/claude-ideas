@@ -16,10 +16,10 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    signingConfigs {
-        release {
-            def keystore = System.getenv('RELINK_KEYSTORE_PATH')
-            if (keystore) {
+    def keystore = System.getenv('RELINK_KEYSTORE_PATH')
+    if (keystore) {
+        signingConfigs {
+            release {
                 storeFile file(keystore)
                 storePassword System.getenv('RELINK_KEYSTORE_PASSWORD')
                 keyAlias System.getenv('RELINK_KEY_ALIAS')
@@ -29,7 +29,7 @@ android {
     }
     buildTypes {
         release {
-            signingConfig System.getenv('RELINK_KEYSTORE_PATH') ? signingConfigs.release : signingConfigs.debug
+            signingConfig keystore ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
