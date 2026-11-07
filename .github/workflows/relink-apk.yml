@@ -1,0 +1,85 @@
+name: Relink APK
+
+on:
+  push:
+    branches: [poc]
+    paths: [relink/**, .github/workflows/relink-apk.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: relink-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: relink
+    env:
+      RELINK_VERSION_CODE: ${{ github.run_number }}
+      RELINK_VERSION_NAME: 0.1.${{ github.run_number }}
+      KEYSTORE_BASE64: ${{ secrets.RELINK_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: relink/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install and sync the web game into the Android project
+        run: |
+          set -euo pipefail
+          npm ci
+          npm test
+          npm run android:sync
+
+      - name: Load the release key
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          RELINK_KEYSTORE_PASSWORD: ${{ secrets.RELINK_KEYSTORE_PASSWORD }}
+          RELINK_KEY_ALIAS: ${{ secrets.RELINK_KEY_ALIAS }}
+          RELINK_KEY_PASSWORD: ${{ secrets.RELINK_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/relink.jks"
+          {
+            echo "RELINK_KEYSTORE_PATH=$RUNNER_TEMP/relink.jks"
+            echo "RELINK_KEYSTORE_PASSWORD=$RELINK_KEYSTORE_PASSWORD"
+            echo "RELINK_KEY_ALIAS=$RELINK_KEY_ALIAS"
+            echo "RELINK_KEY_PASSWORD=$RELINK_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+      - name: Build the APK
+        working-directory: relink/android
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/relink-$RELINK_VERSION_NAME.apk"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: relink-${{ env.RELINK_VERSION_NAME }}
+          path: ${{ runner.temp }}/relink-${{ env.RELINK_VERSION_NAME }}.apk
+
+      - name: Publish the APK as a pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          signing=$([ -n "$KEYSTORE_BASE64" ] && echo "release key" || echo "debug key: uninstall the previous build before installing")
+          gh release create "relink-v$RELINK_VERSION_NAME" "$RUNNER_TEMP/relink-$RELINK_VERSION_NAME.apk" \
+            --target "$GITHUB_SHA" --prerelease --title "Relink $RELINK_VERSION_NAME" \
+            --notes "Android build of Relink from ${GITHUB_SHA::7}. Signed with the $signing."

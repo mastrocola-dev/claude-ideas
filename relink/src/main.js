@@ -656,7 +656,16 @@ applyStatic(document)
 renderTitle()
 requestAnimationFrame(frame)
 
-navigator.serviceWorker?.register('sw.js')
+const native = globalThis.Capacitor?.isNativePlatform?.()
+
+if (!native) navigator.serviceWorker?.register('sw.js')
+
+globalThis.Capacitor?.Plugins?.App?.addListener('backButton', () => {
+  const dialog = document.querySelector('dialog[open]')
+  if (dialog) return dialog.close()
+  if ($('title').hidden) return renderTitle()
+  globalThis.Capacitor.Plugins.App.exitApp()
+})
 
 window.relink = {
   play: next => {

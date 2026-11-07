@@ -1,0 +1,8 @@
+{
+  "appId": "dev.mastrocola.relink",
+  "appName": "Relink",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#05060b"
+  }
+}

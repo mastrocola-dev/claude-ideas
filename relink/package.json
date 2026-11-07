@@ -9,10 +9,17 @@
     "e2e": "node e2e/play.js",
     "balance": "node scripts/balance.js",
     "check": "biome ci .",
-    "fix": "biome check --write ."
+    "fix": "biome check --write .",
+    "stage": "node scripts/stage.js",
+    "android:sync": "npm run stage && cap sync android",
+    "android:assets": "node scripts/android-assets.js"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/cli": "8.5.3",
+    "@capacitor/core": "8.5.3",
     "axe-core": "4.14.0",
     "playwright-core": "1.64.1"
   }
